@@ -4,11 +4,13 @@ const Discord = require('discord.js');
 const Sequelize = require('sequelize');
 const { token, 
         prefix, 
-        eventsChannelID, 
+        eventsChannelID,
+        modCommandsChannelID, 
         announcementsChannelID } = require('./config.json');
 
 const client = new Discord.Client();
 const eventsChannel = client.channels.cache.get(eventsChannelID);
+const modCommandsChannel = client.channels.cache.get(modCommandsChannelID);
 const announcementsChannel = client.channels.cache.get(announcementsChannelID);
 
 // Initialize the events database
@@ -49,27 +51,24 @@ client.once('ready', () => {
     console.log('Ready!');
     try {
         Events.sync();
-        console.log("Events database created");
+        console.log("Events database created successfully");
     } catch {
         console.log("Error creating database");
     }
-        
-
 });
 
-/* TODO later -> v1.1
 client.on('message', message => {
-	if (message.content === `${prefix}add`) {
+	if (message.content.startsWith(`${prefix}add`)) {
 
-        // POST request to database
+        if (message.channel.id == modCommandsChannelID) {
 
-        // Update events channel
+            // Add event to DB
 
-        // 
-
+        }else{
+            message.channel.send('```diff\n- Sorry, I only respond to commands in the mod-commands channel.\n```'); //Red text
+        }
     }
 });
-*/
 
 function sendMessage(){
     client.channels.cache.get(eventsChannelID).send(createCalendar());
