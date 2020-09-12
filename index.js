@@ -37,11 +37,11 @@ const Events = sequelize.define('events', {
         defaultValue: Sequelize.UUIDV4,
         primaryKey: true
     },
-	name: Sequelize.STRING,
+	title: Sequelize.STRING,
 	description: Sequelize.TEXT,
     date: Sequelize.DATEONLY,
-    start_time: Sequelize.INTEGER,
-    end_time: Sequelize.STRING,
+    startTime: Sequelize.STRING,
+    endTime: Sequelize.STRING,
     location: Sequelize.STRING,
     URL: Sequelize.STRING
 });
@@ -60,11 +60,27 @@ client.once('ready', () => {
 client.on('message', message => {
 	if (message.content.startsWith(`${prefix}add`)) {
 
-        if (message.channel.id == modCommandsChannelID) {
+        if (message.channel.id == eventsChannelID) {
 
-            // Add event to DB
+            let args = message.content.match(/(?:[^\s"]+|"[^"]*")+/g);
+            args.shift(); // Remove first element
 
-        }else{
+            if (args.length == 7) {
+
+                eventTitle = args[0];
+                eventDescription = args[1];
+                eventLocation = args[2];
+                eventDate = args[3];
+                eventStartTime = args[4];
+                eventEndTime = args[5];
+                eventURL = args[6];
+            
+                message.channel.send('```diff\n+ Event Added to Calendar: ' + args + '\n```');
+
+            } else {
+                message.channel.send('```diff\n- ERROR: Incorrect number of arguements.\n\n- +add "<title>" "<description>" "<location>" <date (YYYY-MM-DDD)> <start_time> <end_time> <URL>```'); //Red text
+            }
+        } else {
             message.channel.send('```diff\n- Sorry, I only respond to commands in the mod-commands channel.\n```'); //Red text
         }
     }
@@ -90,7 +106,7 @@ function sendAnnouncement(){
     
 }
 
-setInterval(sendMessage, 60000);
+//setInterval(sendMessage, 60000);
 
 // Executes every 30 minutes
 setInterval(sendAnnouncement, 1800000);
