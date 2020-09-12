@@ -21,22 +21,24 @@ const sequelize = new Sequelize('database', 'user', 'password', {
 });
 
 /*
- * equivalent to: CREATE TABLE tags(
+ * equivalent to: CREATE TABLE events(
+ * id INT,
  * name VARCHAR(255),
  * description TEXT,
- * username VARCHAR(255),
+ * date VARCHAR(255),
  * usage INT
  * );
  */
 const Events = sequelize.define('events', {
     id: {
-        type: Sequelize.INTEGER,
-        unique: true,
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4,
+        primaryKey: true
     },
 	name: Sequelize.STRING,
 	description: Sequelize.TEXT,
-    date: Sequelize.STRING,
-    start_time: Sequelize.STRING,
+    date: Sequelize.DATEONLY,
+    start_time: Sequelize.INTEGER,
     end_time: Sequelize.STRING,
     location: Sequelize.STRING,
     URL: Sequelize.STRING
@@ -45,6 +47,14 @@ const Events = sequelize.define('events', {
 // Displays console log when bot is successfully running
 client.once('ready', () => {
     console.log('Ready!');
+    try {
+        Events.sync();
+        console.log("Events database created");
+    } catch {
+        console.log("Error creating database");
+    }
+        
+
 });
 
 /* TODO later -> v1.1
