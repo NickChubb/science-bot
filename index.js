@@ -50,7 +50,7 @@ const Events = sequelize.define('events', {
 client.once('ready', () => {
     console.log('Ready!');
     try {
-        Events.sync({force: true});
+        Events.sync();
         console.log("Events database created successfully");
     } catch {
         console.log("Error creating database");
@@ -104,7 +104,10 @@ client.on('message', async message => {
 
                 if (args.length == 1) {
 
-                    
+                    const delID = args[0];
+                    const rowCount = await Events.destroy({ where: { id: delID } });
+                    if (!rowCount) return message.reply('```diff\n- ERROR: That event does not exist.\n```');
+                    return message.reply('```diff\n+ Event deleted successfully\n```');
 
                 } else {
                     message.channel.send('```diff\n- ERROR: Incorrect number of arguements.\n\n- +del <id>```'); //Red text
