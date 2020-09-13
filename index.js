@@ -88,17 +88,17 @@ client.on('message', async message => {
                         URL: eventURL,
                     });
                 
-                    message.channel.send('```diff\n+ Event Added to Calendar: ' + args + ' with id: ' + newEvent.id + '\n```');
+                    message.reply('```diff\n+ Event Added to Calendar: ' + args.join(', ') + ' with id: ' + newEvent.id + '\n```');
     
                 } else {
-                    message.channel.send('```diff\n- ERROR: Incorrect number of arguements.\n\n- +add "<title>" "<description>" "<location>" <date (YYYY-MM-DDD)> <start_time> <end_time> <URL>```'); //Red text
+                    message.reply('```diff\n- ERROR: Incorrect number of arguements.\n\n- +add "<title>" "<description>" "<location>" <date (YYYY-MM-DDD)> <start_time> <end_time> <URL>```'); //Red text
                 }
             
             } else if (command == 'show') {
                 
-                const eventsList = await Events.findAll({ attributes: ['title'] });
-                const eventsString = eventsList.map(e => e.title).join(', ') || 'No events set.';
-                message.channel.send('```diff\n+ List of events: ' + eventsString+ '\n```');
+                const eventsList = await Events.findAll({ attributes: ['title', 'date', 'id'] });
+                const eventsString = eventsList.map(e => `\n+     ${e.title}: date = ${e.date}, id = ${e.id}`).join(' ') || 'No events set.';
+                message.reply('```diff\n+ Upcoming events: ' + eventsString+ '\n```');
 
             } else if (command == 'del') {
 
@@ -110,15 +110,15 @@ client.on('message', async message => {
                     return message.reply('```diff\n+ Event deleted successfully\n```');
 
                 } else {
-                    message.channel.send('```diff\n- ERROR: Incorrect number of arguements.\n\n- +del <id>```'); //Red text
+                    message.reply('```diff\n- ERROR: Incorrect number of arguements.\n\n- +del <id>```'); //Red text
                 }
             
             } else {
-                message.channel.send('```diff\n- Sorry, I don\'t know that command.\n```'); //Red text
+                message.reply('```diff\n- Sorry, I don\'t know that command.\n```'); //Red text
             }
             
         } else {
-            message.channel.send('```diff\n- Sorry, I only respond to commands in the mod-commands channel.\n```'); //Red text
+            message.reply('```diff\n- Sorry, I only respond to commands in the mod-commands channel.\n```'); //Red text
         }
     }
 });
