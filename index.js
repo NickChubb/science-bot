@@ -39,7 +39,7 @@ const Events = sequelize.define('events', {
     },
 	title: Sequelize.STRING,
 	description: Sequelize.TEXT,
-    date: Sequelize.DATEONLY,
+    date: Sequelize.STRING,
     startTime: Sequelize.STRING,
     endTime: Sequelize.STRING,
     location: Sequelize.STRING,
@@ -50,36 +50,70 @@ const Events = sequelize.define('events', {
 client.once('ready', () => {
     console.log('Ready!');
     try {
-        Events.sync();
+        Events.sync({force: true});
         console.log("Events database created successfully");
     } catch {
         console.log("Error creating database");
     }
 });
 
-client.on('message', message => {
-	if (message.content.startsWith(`${prefix}add`)) {
+client.on('message', async message => {
+	if (message.content.startsWith(`${prefix}`)) {
 
-        if (message.channel.id == eventsChannelID) {
+        if (message.channel.id == eventsChannelID) {  // CHANGE TO MOD COMMAND
 
             let args = message.content.match(/(?:[^\s"]+|"[^"]*")+/g);
-            args.shift(); // Remove first element
+            let command = args[0].substring(1); // Remove prefix from command
+            args.shift(); // Remove first element (command) from args
 
-            if (args.length == 7) {
+            if (command == 'add') {
 
-                eventTitle = args[0];
-                eventDescription = args[1];
-                eventLocation = args[2];
-                eventDate = args[3];
-                eventStartTime = args[4];
-                eventEndTime = args[5];
-                eventURL = args[6];
+                if (args.length == 7) {
+
+                    eventTitle = args[0];
+                    eventDescription = args[1];
+                    eventLocation = args[2];
+                    eventDate = args[3];
+                    eventStartTime = args[4];
+                    eventEndTime = args[5];
+                    eventURL = args[6];
+    
+                    const newEvent = await Events.create({
+                        title: eventTitle,
+                        description: eventDescription,
+                        location: eventLocation,
+                        date: eventDate,
+                        startTime: eventStartTime,
+                        endTime: eventEndTime,
+                        URL: eventURL,
+                    });
+                
+                    message.channel.send('```diff\n+ Event Added to Calendar: ' + args + ' with id: ' + newEvent.id + '\n```');
+    
+                } else {
+                    message.channel.send('```diff\n- ERROR: Incorrect number of arguements.\n\n- +add "<title>" "<description>" "<location>" <date (YYYY-MM-DDD)> <start_time> <end_time> <URL>```'); //Red text
+                }
             
-                message.channel.send('```diff\n+ Event Added to Calendar: ' + args + '\n```');
+            } else if (command == 'show') {
+                
+                const eventsList = await Events.findAll({ attributes: ['title'] });
+                const eventsString = eventsList.map(e => e.title).join(', ') || 'No events set.';
+                message.channel.send('```diff\n+ List of events: ' + eventsString+ '\n```');
 
+            } else if (command == 'del') {
+
+                if (args.length == 1) {
+
+                    
+
+                } else {
+                    message.channel.send('```diff\n- ERROR: Incorrect number of arguements.\n\n- +del <id>```'); //Red text
+                }
+            
             } else {
-                message.channel.send('```diff\n- ERROR: Incorrect number of arguements.\n\n- +add "<title>" "<description>" "<location>" <date (YYYY-MM-DDD)> <start_time> <end_time> <URL>```'); //Red text
+                message.channel.send('```diff\n- Sorry, I don\'t know that command.\n```'); //Red text
             }
+            
         } else {
             message.channel.send('```diff\n- Sorry, I only respond to commands in the mod-commands channel.\n```'); //Red text
         }
@@ -106,9 +140,16 @@ function sendAnnouncement(){
     
 }
 
+/**
+ * The main update loop of the bot, commands to be executed every 30 minutes
+ */
+function updateLoop(){
+
+}
+
 //setInterval(sendMessage, 60000);
 
 // Executes every 30 minutes
-setInterval(sendAnnouncement, 1800000);
+setInterval(updateLoop, 1800000);
 
 client.login(token);
