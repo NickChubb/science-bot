@@ -2,6 +2,7 @@
 
 const Discord = require('discord.js');
 const Sequelize = require('sequelize');
+const moment = require('moment');
 const { token, 
         prefix, 
         eventsChannelID,
@@ -12,6 +13,8 @@ const client = new Discord.Client();
 const eventsChannel = client.channels.cache.get(eventsChannelID);
 const modCommandsChannel = client.channels.cache.get(modCommandsChannelID);
 const announcementsChannel = client.channels.cache.get(announcementsChannelID);
+
+var time = moment();
 
 // Initialize the events database
 const sequelize = new Sequelize('database', 'user', 'password', {
@@ -39,7 +42,7 @@ const Events = sequelize.define('events', {
     },
 	title: Sequelize.STRING,
 	description: Sequelize.TEXT,
-    date: Sequelize.STRING,
+    date: Sequelize.DATEONLY,
     startTime: Sequelize.STRING,
     endTime: Sequelize.STRING,
     location: Sequelize.STRING,
@@ -49,6 +52,8 @@ const Events = sequelize.define('events', {
 // Displays console log when bot is successfully running
 client.once('ready', () => {
     console.log('Ready!');
+    console.log('initiated: ' + time.format("YYYY-MM-DD HH:mm"));
+
     try {
         Events.sync();
         console.log("Events database created successfully");
@@ -106,13 +111,14 @@ client.on('message', async message => {
 
                     const delID = args[0];
                     const rowCount = await Events.destroy({ where: { id: delID } });
-                    if (!rowCount) return message.reply('```diff\n- ERROR: That event does not exist.\n```');
+                    if   (!rowCount) return message.reply('```diff\n- ERROR: That event does not exist.\n```');
                     return message.reply('```diff\n+ Event deleted successfully\n```');
 
                 } else {
                     message.reply('```diff\n- ERROR: Incorrect number of arguements.\n\n- +del <id>```'); //Red text
                 }
-            
+            } else if (command == 'update') {
+                updateLoop();
             } else {
                 message.reply('```diff\n- Sorry, I don\'t know that command.\n```'); //Red text
             }
@@ -146,11 +152,36 @@ function sendAnnouncement(){
 /**
  * The main update loop of the bot, commands to be executed every 30 minutes
  */
-function updateLoop(){
+async function updateLoop(){
 
+    const now = moment();
+    const eventsList = await Events.findAll({ order: [['date', 'ASC']] });
+
+    client.channels.cache.get(eventsChannelID).send(eventsList.map(e => e.title));
+
+    for (const event in eventsList) {
+
+        // Check if time until event < 1hr:
+        //      Send announcement about event
+        
+
+    }
+
+    if ( !(time.isSame(now, 'day')) ) { // Returns true if not the same day as last time
+        console.log("New day!");
+        time = moment();
+
+        for (const event in eventsList) {
+
+            // Check if time = event.date
+            //      Update calendar
+    
+            
+        }
+    }
 }
 
-//setInterval(sendMessage, 60000);
+// updateLoop();
 
 // Executes every 30 minutes
 setInterval(updateLoop, 1800000);
