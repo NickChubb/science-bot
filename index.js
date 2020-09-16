@@ -101,9 +101,23 @@ client.on('message', async message => {
             
             } else if (command == 'show') {
                 
-                const eventsList = await Events.findAll({ attributes: ['title', 'date', 'id'] });
-                const eventsString = eventsList.map(e => `\n+     ${e.title}: date = ${e.date}, id = ${e.id}`).join(' ') || 'No events set.';
-                message.reply('```diff\n+ Upcoming events: ' + eventsString+ '\n```');
+                const eventsList = await Events.findAll();
+                //const eventsString = eventsList.map(e => `\n+     ${e.title}: date = ${e.date}, id = ${e.id}`).join(' ') || 'No events set.';
+                //console.log(eventsList);
+                eventsList.forEach(event => {
+                    eventEmbed = createEventEmbed(event.dataValues);
+                    client.channels.cache.get(eventsChannelID).send({ embed: eventEmbed });
+                });
+                /*
+                for (event in eventsList) {
+                    console.log(event);
+                    //console.log(event.dataValues.title);
+                    eventEmbed = createEventEmbed(event);
+                    client.channels.cache.get(eventsChannelID).send({ embed: eventEmbed });
+                }
+                */
+
+                //message.reply('```diff\n+ Upcoming events: ' + eventsString+ '\n```');
 
             } else if (command == 'del') {
 
@@ -117,7 +131,7 @@ client.on('message', async message => {
                 } else {
                     message.reply('```diff\n- ERROR: Incorrect number of arguements.\n\n- +del <id>```'); //Red text
                 }
-            } else if (command == 'update') {
+            } else if (command == 'test') { // Testing command
                 updateLoop();
             } else {
                 message.reply('```diff\n- Sorry, I don\'t know that command.\n```'); //Red text
@@ -140,12 +154,37 @@ function createCalendar(){
     return "```EVENTS CALENDAR\n\nHewwo uwu this is a test for message styling```";
 }
 
-/**
- * Send announcements if any events are close to happening
- */
-function sendAnnouncement(){
+function updateCalendar() {
+    console.log("Calendar updated");
+}
 
-    // GET request from DB
+/**
+ * Creates an Embed for a specified event
+ */
+function createEventEmbed(event){
+
+    //Events.findAll({ where: {id: eventID }})
+    const eventEmbed = {
+        color: 0x0099ff,
+        title: event.title,
+        description: event.description,
+        fields: [
+            {
+                value: event.location + '',
+                inline: true,
+            },
+            {
+                value: event.startTime,
+                inline: true,
+            },
+            {
+                value: event.endTime,
+                inline: true,
+            },
+        ]
+    };
+
+    return eventEmbed;
     
 }
 
@@ -157,7 +196,7 @@ async function updateLoop(){
     const now = moment();
     const eventsList = await Events.findAll({ order: [['date', 'ASC']] });
 
-    client.channels.cache.get(eventsChannelID).send(eventsList.map(e => e.title));
+    //client.channels.cache.get(eventsChannelID).send(eventsList.map(e => e.title));
 
     for (const event in eventsList) {
 
@@ -165,23 +204,19 @@ async function updateLoop(){
         //      Send announcement about event
         
 
+
     }
 
     if ( !(time.isSame(now, 'day')) ) { // Returns true if not the same day as last time
         console.log("New day!");
-        time = moment();
-
+        time = now;
         for (const event in eventsList) {
-
-            // Check if time = event.date
-            //      Update calendar
-    
-            
+            if (event.date == time.format("YYYY-MM-DD")) {
+                updateCalendar();
+            }
         }
     }
 }
-
-// updateLoop();
 
 // Executes every 30 minutes
 setInterval(updateLoop, 1800000);
