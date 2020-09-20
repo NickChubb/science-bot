@@ -75,9 +75,9 @@ client.on('message', async message => {
 
                 if (args.length == 7) {
 
-                    eventTitle = args[0];
-                    eventDescription = args[1];
-                    eventLocation = args[2];
+                    eventTitle = args[0].split('"').join('');
+                    eventDescription = args[1].split('"').join('');
+                    eventLocation = args[2].split('"').join('');
                     eventDate = args[3];
                     eventStartTime = args[4];
                     eventEndTime = args[5];
@@ -106,7 +106,7 @@ client.on('message', async message => {
                 //console.log(eventsList);
                 eventsList.forEach(event => {
                     eventEmbed = createEventEmbed(event.dataValues);
-                    client.channels.cache.get(eventsChannelID).send({ embed: eventEmbed });
+                    client.channels.cache.get(eventsChannelID).send(eventEmbed);
                 });
                 /*
                 for (event in eventsList) {
@@ -163,26 +163,22 @@ function updateCalendar() {
  */
 function createEventEmbed(event){
 
-    //Events.findAll({ where: {id: eventID }})
-    const eventEmbed = {
-        color: 0x0099ff,
-        title: event.title,
-        description: event.description,
-        fields: [
-            {
-                value: event.location + '',
-                inline: true,
-            },
-            {
-                value: event.startTime,
-                inline: true,
-            },
-            {
-                value: event.endTime,
-                inline: true,
-            },
-        ]
-    };
+    const strDate = moment(event.date).format('dddd MMM Do, YYYY');
+
+    const eventEmbed = new Discord.MessageEmbed()
+	.setColor('#0099ff')
+	.setTitle(event.title)
+	.setURL('https://discord.js.org/')
+    .setDescription(event.description)
+    .attachFiles(['src/sus.png'])
+	.setThumbnail('attachment://sus.png')
+	.addFields(
+        { name: 'Location', value: event.location },
+        { name: 'Date', value: strDate, inline: true},
+        //{ name: '\u200B', value: '\u200B', inline: true},
+		{ name: 'Start Time', value: event.startTime , inline: true },
+		{ name: 'End Time', value: event.endTime, inline: true },
+	)
 
     return eventEmbed;
     
