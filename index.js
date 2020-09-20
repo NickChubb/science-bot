@@ -96,26 +96,24 @@ client.on('message', async message => {
                     message.reply('```diff\n+ Event Added to Calendar: ' + args.join(', ') + ' with id: ' + newEvent.id + '\n```');
     
                 } else {
-                    message.reply('```diff\n- ERROR: Incorrect number of arguements.\n\n- +add "<title>" "<description>" "<location>" <date (YYYY-MM-DDD)> <start_time> <end_time> <URL>```'); //Red text
+                    message.reply('```diff\n- ERROR: Incorrect number of arguements.\n\n- +add "<title>" "<description>" "<location>" <date (YYYY-MM-DD)> <start_time> <end_time> <URL>```'); //Red text
                 }
             
             } else if (command == 'show') {
                 
-                const eventsList = await Events.findAll();
+                const eventsList = await Events.findAll({ order: [['date', 'DESC']] });
                 //const eventsString = eventsList.map(e => `\n+     ${e.title}: date = ${e.date}, id = ${e.id}`).join(' ') || 'No events set.';
                 //console.log(eventsList);
+                /*
                 eventsList.forEach(event => {
                     eventEmbed = createEventEmbed(event.dataValues);
                     client.channels.cache.get(eventsChannelID).send(eventEmbed);
                 });
-                /*
-                for (event in eventsList) {
-                    console.log(event);
-                    //console.log(event.dataValues.title);
-                    eventEmbed = createEventEmbed(event);
-                    client.channels.cache.get(eventsChannelID).send({ embed: eventEmbed });
-                }
                 */
+
+                updateLoop();
+                
+
 
                 //message.reply('```diff\n+ Upcoming events: ' + eventsString+ '\n```');
 
@@ -163,10 +161,19 @@ function updateCalendar() {
  */
 function createEventEmbed(event){
 
-    const strDate = moment(event.date).format('dddd MMM Do, YYYY');
+    var embedColour = '#0099ff';
+
+    const eventDate = moment(event.date);
+    const strDate = eventDate.format('dddd MMM Do, YYYY');
+
+    const now = moment();
+
+    if(eventDate.isSame(now, 'date')){
+        embedColour = '#00FF7F';
+    }
 
     const eventEmbed = new Discord.MessageEmbed()
-	.setColor('#0099ff')
+	.setColor(embedColour)
 	.setTitle(event.title)
 	.setURL('https://discord.js.org/')
     .setDescription(event.description)
@@ -174,10 +181,10 @@ function createEventEmbed(event){
 	.setThumbnail('attachment://sus.png')
 	.addFields(
         { name: 'Location', value: event.location },
-        { name: 'Date', value: strDate, inline: true},
+        { name: 'Date', value: strDate + '\u200b \u200b \u200b \u200b \u200b \u200b', inline: true},
         //{ name: '\u200B', value: '\u200B', inline: true},
-		{ name: 'Start Time', value: event.startTime , inline: true },
-		{ name: 'End Time', value: event.endTime, inline: true },
+		{ name: 'Start Time \u200b \u200b \u200b \u200b \u200b \u200b', value: event.startTime , inline: true },
+		{ name: 'End Time \u200b \u200b \u200b \u200b \u200b \u200b', value: event.endTime, inline: true },
 	)
 
     return eventEmbed;
@@ -190,27 +197,31 @@ function createEventEmbed(event){
 async function updateLoop(){
 
     const now = moment();
-    const eventsList = await Events.findAll({ order: [['date', 'ASC']] });
+    const eventsList = await Events.findAll({ order: [['date', 'DESC']] });
 
-    //client.channels.cache.get(eventsChannelID).send(eventsList.map(e => e.title));
+    // Manages alerts to notification channel if event is less than 1 hour away
+    eventsList.forEach(event => {
+        const eventDateTime = moment(event.date + ' ' + event.startTime, 'YYYY-MM-DD hh:mma');
+        if(eventDate.isSame(now, 'date')){
+            // Check if time now is after 1 hour before the event
+            if(now.isAfter(eventDateTime.subtract(1, 'hours'))){
 
-    for (const event in eventsList) {
+                // Alert to notifications channel
 
-        // Check if time until event < 1hr:
-        //      Send announcement about event
-        
-
-
-    }
+            }
+        }
+    });
 
     if ( !(time.isSame(now, 'day')) ) { // Returns true if not the same day as last time
         console.log("New day!");
         time = now;
+        /*
         for (const event in eventsList) {
             if (event.date == time.format("YYYY-MM-DD")) {
                 updateCalendar();
             }
         }
+        */
     }
 }
 
