@@ -8,7 +8,6 @@ const { token,
         eventsChannelID,
         modCommandsChannelID, 
         announcementsChannelID } = require('./config.json');
-
 const client = new Discord.Client();
 const eventsChannel = client.channels.cache.get(eventsChannelID);
 const modCommandsChannel = client.channels.cache.get(modCommandsChannelID);
@@ -52,7 +51,7 @@ const Events = sequelize.define('events', {
 // Displays console log when bot is successfully running
 client.once('ready', () => {
     console.log('Ready!');
-    console.log('initiated: ' + time.format("YYYY-MM-DD HH:mm"));
+    console.log('initiated: ' + time.format("YYYY-MM-DD HH:mma"));
 
     try {
         Events.sync();
@@ -101,21 +100,9 @@ client.on('message', async message => {
             
             } else if (command == 'show') {
                 
-                const eventsList = await Events.findAll({ order: [['date', 'DESC']] });
-                //const eventsString = eventsList.map(e => `\n+     ${e.title}: date = ${e.date}, id = ${e.id}`).join(' ') || 'No events set.';
-                //console.log(eventsList);
-                /*
-                eventsList.forEach(event => {
-                    eventEmbed = createEventEmbed(event.dataValues);
-                    client.channels.cache.get(eventsChannelID).send(eventEmbed);
-                });
-                */
+                const channel = message.channel;
 
-                updateLoop();
-                
-
-
-                //message.reply('```diff\n+ Upcoming events: ' + eventsString+ '\n```');
+                createCalendar(channel);
 
             } else if (command == 'del') {
 
@@ -130,7 +117,8 @@ client.on('message', async message => {
                     message.reply('```diff\n- ERROR: Incorrect number of arguements.\n\n- +del <id>```'); //Red text
                 }
             } else if (command == 'test') { // Testing command
-                updateLoop();
+                //updateLoop();
+                updateCalendar();
             } else {
                 message.reply('```diff\n- Sorry, I don\'t know that command.\n```'); //Red text
             }
@@ -141,19 +129,29 @@ client.on('message', async message => {
     }
 });
 
-function sendMessage(){
-    client.channels.cache.get(eventsChannelID).send(createCalendar());
-}
-
 /**
  * Creates the message to be sent in the events channel
  */
-function createCalendar(){
-    return "```EVENTS CALENDAR\n\nHewwo uwu this is a test for message styling```";
+async function createCalendar(channel){
+
+    const eventsList = await Events.findAll({ order: [['date', 'DESC']] });
+
+    eventsList.forEach(event => {
+        eventEmbed = createEventEmbed(event.dataValues);
+        channel.send(eventEmbed);
+    });
 }
 
 function updateCalendar() {
-    console.log("Calendar updated");
+    
+    console.log("Calendar updating");
+    
+    const chnnl = client.channels.cache.get(eventsChannelID);
+
+    // Delete all the messages in the channel
+    chnnl.bulkDelete(100);
+    // Create new calendar of messages
+    createCalendar(chnnl);
 }
 
 /**
@@ -202,7 +200,7 @@ async function updateLoop(){
     // Manages alerts to notification channel if event is less than 1 hour away
     eventsList.forEach(event => {
         const eventDateTime = moment(event.date + ' ' + event.startTime, 'YYYY-MM-DD hh:mma');
-        if(eventDate.isSame(now, 'date')){
+        if(eventDateTime.isSame(now, 'date')){
             // Check if time now is after 1 hour before the event
             if(now.isAfter(eventDateTime.subtract(1, 'hours'))){
 
@@ -212,16 +210,21 @@ async function updateLoop(){
         }
     });
 
-    if ( !(time.isSame(now, 'day')) ) { // Returns true if not the same day as last time
-        console.log("New day!");
+    if ( !(time.isSame(now, 'date')) ) { // Returns true if not the same day as last time
+        console.log("New day! " + time.format("YYYY-MM-DD HH:mma"));
         time = now;
-        /*
-        for (const event in eventsList) {
-            if (event.date == time.format("YYYY-MM-DD")) {
+
+        // If any event is now today, update the calendar
+        eventsList.forEach(event => {
+            if(moment(event.date).isSame(time, 'date')){
+                updateCalendar();
+            } else if(moment(event.date).isBefore(time, 'date')){
+                // Remove past event from DB
+                Events.destroy({ where: {id: event.id} });
                 updateCalendar();
             }
-        }
-        */
+        });
+
     }
 }
 
