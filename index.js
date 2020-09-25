@@ -3,11 +3,13 @@
 const Discord = require('discord.js');
 const Sequelize = require('sequelize');
 const moment = require('moment');
+const ytdl = require("ytdl-core");
 const { token, 
         prefix, 
         eventsChannelID,
         modCommandsChannelID, 
-        announcementsChannelID } = require('./config.json');
+        announcementsChannelID,
+        musicChannelID } = require('./config.json');
 const client = new Discord.Client();
 const eventsChannel = client.channels.cache.get(eventsChannelID);
 const modCommandsChannel = client.channels.cache.get(modCommandsChannelID);
@@ -49,7 +51,7 @@ const Events = sequelize.define('events', {
 });
 
 // Displays console log when bot is successfully running
-client.once('ready', () => {
+client.once('ready', async () => {
     console.log('Ready!');
     console.log('initiated: ' + time.format("YYYY-MM-DD HH:mma"));
 
@@ -59,6 +61,17 @@ client.once('ready', () => {
     } catch {
         console.log("Error creating database");
     }
+
+    // Music Integration
+    const voiceChannel = client.channels.cache.get(musicChannelID);
+    voiceChannel.join().then(connection => {
+        // Yay, it worked!
+        console.log("Successfully connected to voice channel.");
+        playMusic();
+    }).catch(e => {
+        // Oh no, it errored! Let's log it to console :)
+        console.error(e);
+    });
 });
 
 client.on('message', async message => {
@@ -226,6 +239,17 @@ async function updateLoop(){
         });
 
     }
+}
+
+function playMusic(){
+    const voiceChannel = client.channels.cache.get(musicChannelID);
+
+    voiceChannel.join().then(connection => {
+        const stream = ytdl('https://www.youtube.com/watch?v=5qap5aO4i9A&ab_channel=ChilledCow', { filter: 'audioonly' });
+        const dispatcher = connection.play(stream);
+
+        dispatcher.on('finish', () => voiceChannel.leave());
+    });
 }
 
 // Executes every 30 minutes
