@@ -64,6 +64,9 @@ client.once('ready', async () => {
 
     // Music Integration
     const voiceChannel = client.channels.cache.get(musicChannelID);
+    playMusic(voiceChannel);
+    /*
+    const voiceChannel = client.channels.cache.get(musicChannelID);
     voiceChannel.join().then(connection => {
         // Yay, it worked!
         console.log("Successfully connected to voice channel.");
@@ -72,6 +75,7 @@ client.once('ready', async () => {
         // Oh no, it errored! Let's log it to console :)
         console.error(e);
     });
+    */
 });
 
 client.on('message', async message => {
@@ -241,14 +245,26 @@ async function updateLoop(){
     }
 }
 
-function playMusic(){
-    const voiceChannel = client.channels.cache.get(musicChannelID);
+function playMusic(voiceChannel){
 
     voiceChannel.join().then(connection => {
+
+        console.log("Successfully connected to voice channel.");
+
         const stream = ytdl('https://www.youtube.com/watch?v=5qap5aO4i9A&ab_channel=ChilledCow', { filter: 'audioonly', type: 'opus' });
         const dispatcher = connection.play(stream);
 
-        dispatcher.on('finish', () => voiceChannel.leave());
+        const stream = () => {
+            if (info.livestream) {
+                const format = ytdl.chooseFormat(info.formats, { quality: [128,127,120,96,95,94,93] });
+                return format.url;
+            } else return ytdl.downloadFromInfo(info, { filter: 'audioonly' });
+        }
+        connection.play(stream());
+        
+    }).catch(e => {
+        // Oh no, it errored! Let's log it to console :)
+        console.error(e);
     });
 }
 
