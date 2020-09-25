@@ -245,7 +245,7 @@ function playMusic(){
     const voiceChannel = client.channels.cache.get(musicChannelID);
 
     voiceChannel.join().then(connection => {
-        const stream = ytdl('https://www.youtube.com/watch?v=5qap5aO4i9A&ab_channel=ChilledCow', { filter: 'audioonly' });
+        const stream = ytdl('https://www.youtube.com/watch?v=5qap5aO4i9A&ab_channel=ChilledCow', { filter: 'audioonly', type: 'opus' });
         const dispatcher = connection.play(stream);
 
         dispatcher.on('finish', () => voiceChannel.leave());
