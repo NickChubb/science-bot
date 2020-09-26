@@ -245,20 +245,20 @@ async function updateLoop(){
     }
 }
 
+// https://github.com/fent/node-ytdl-core/issues/399
 function playMusic(voiceChannel){
 
-    voiceChannel.join().then(connection => {
+    voiceChannel.join().then(async connection  => {
 
+        connection.voice.setSelfDeaf(true);
         console.log("Successfully connected to voice channel.");
 
-        const stream = ytdl('https://www.youtube.com/watch?v=5qap5aO4i9A&ab_channel=ChilledCow', { filter: 'audioonly', type: 'opus' });
-        const dispatcher = connection.play(stream);
-
+        const info = await ytdl.getInfo('https://www.youtube.com/watch?v=5qap5aO4i9A');
         const stream = () => {
             if (info.livestream) {
-                const format = ytdl.chooseFormat(info.formats, { quality: [128,127,120,96,95,94,93] });
+                const format = ytdl.chooseFormat(info.formats, { quality: [94] });
                 return format.url;
-            } else return ytdl.downloadFromInfo(info, { filter: 'audioonly' });
+            } else return ytdl.downloadFromInfo(info, { type: 'opus' });
         }
         connection.play(stream());
         
