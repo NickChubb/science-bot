@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 // index.js
 
 const Discord = require('discord.js');
