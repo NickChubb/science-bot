@@ -173,7 +173,7 @@ function updateCalendar() {
     createCalendar(chnnl);
 }
 
-function showEvents(message) {
+async function showEvents(message) {
 
     const eventsList = await Events.findAll({ order: [['date', 'DESC']] });
     const msg = '```diff\n';
