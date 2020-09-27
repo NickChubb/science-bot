@@ -108,9 +108,7 @@ client.on('message', async message => {
             
             } else if (command == 'show') {
                 
-                const channel = message.channel;
-
-                createCalendar(channel);
+                showEvents(message);
 
             } else if (command == 'del') {
 
@@ -173,6 +171,19 @@ function updateCalendar() {
     chnnl.bulkDelete(100);
     // Create new calendar of messages
     createCalendar(chnnl);
+}
+
+function showEvents(message) {
+
+    const eventsList = await Events.findAll({ order: [['date', 'DESC']] });
+    const msg = '```diff\n';
+
+    // Display table with all events and their IDs
+    eventsList.forEach(event => {
+        msg += '+ ' + event.title + ' on ' + event.date + ': ID = ' + event.id + '\n';
+    });
+
+    message.reply(msg);
 }
 
 /**
