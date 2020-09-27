@@ -180,7 +180,7 @@ async function showEvents(message) {
 
     // Display table with all events and their IDs
     eventsList.forEach(event => {
-        msg += '+ ' + event.title + ' on ' + event.date + ': ID = ' + event.id + '\n';
+        msg += '+ ' + event.dataValues.title + ' on ' + event.dataValues.date + ': ID = ' + event.dataValues.id + '\n';
     });
 
     message.reply(msg);
