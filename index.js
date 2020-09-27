@@ -278,9 +278,10 @@ function playMusic(){
             } else return ytdl.downloadFromInfo(info, { type: 'opus' });
         }
         connection.play(stream());
+        setInterval(connection.play(stream), 3600000);  //restart every hour
         
     }).catch(e => {
-        // Oh no, it errored! Let's log it to console :)
+        
         console.error(e);
     });
 }
