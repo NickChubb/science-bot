@@ -182,7 +182,7 @@ async function showEvents(message) {
     eventsList.forEach(event => {
         msg += '+ ' + event.dataValues.title + ' on ' + event.dataValues.date + ': ID = ' + event.dataValues.id + '\n';
     });
-
+    msg += '```';
     message.reply(msg);
 }
 
