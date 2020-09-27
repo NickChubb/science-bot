@@ -11,12 +11,10 @@ const { token,
         eventsChannelID,
         modCommandsChannelID, 
         announcementsChannelID,
-        musicChannelID } = require('./config.json');
-const client = new Discord.Client();
-const eventsChannel = client.channels.cache.get(eventsChannelID);
-const modCommandsChannel = client.channels.cache.get(modCommandsChannelID);
-const announcementsChannel = client.channels.cache.get(announcementsChannelID);
+        musicChannelID,
+        musicOn } = require('./config.json');
 
+const client = new Discord.Client();
 var time = moment();
 
 // Initialize the events database
@@ -65,19 +63,9 @@ client.once('ready', async () => {
     }
 
     // Music Integration
-    const voiceChannel = client.channels.cache.get(musicChannelID);
-    playMusic(voiceChannel);
-    /*
-    const voiceChannel = client.channels.cache.get(musicChannelID);
-    voiceChannel.join().then(connection => {
-        // Yay, it worked!
-        console.log("Successfully connected to voice channel.");
+    if (musicOn) {
         playMusic();
-    }).catch(e => {
-        // Oh no, it errored! Let's log it to console :)
-        console.error(e);
-    });
-    */
+    }
 });
 
 client.on('message', async message => {
@@ -112,6 +100,7 @@ client.on('message', async message => {
                     });
                 
                     message.reply('```diff\n+ Event Added to Calendar: ' + args.join(', ') + ' with id: ' + newEvent.id + '\n```');
+                    updateCalendar();
     
                 } else {
                     message.reply('```diff\n- ERROR: Incorrect number of arguements.\n\n- +add "<title>" "<description>" "<location>" <date (YYYY-MM-DD)> <start_time> <end_time> <URL>```'); //Red text
@@ -138,6 +127,19 @@ client.on('message', async message => {
             } else if (command == 'test') { // Testing command
                 //updateLoop();
                 updateCalendar();
+            } else if (command == 'music') {
+
+                const arg = args[0];
+                switch (arg) {
+                    case 'stop':
+                        stopMusic();
+                        break;
+                    case 'start':
+                        playMusic();
+                        break;
+                    default:
+                        message.reply('```diff\n- Sorry, I don\'t know that command. 🤔\n\n- +music <start/stop>```'); //Red text
+                }
             } else {
                 message.reply('```diff\n- Sorry, I don\'t know that command.\n```'); //Red text
             }
@@ -248,7 +250,9 @@ async function updateLoop(){
 }
 
 // https://github.com/fent/node-ytdl-core/issues/399
-function playMusic(voiceChannel){
+function playMusic(){
+
+    const voiceChannel = client.channels.cache.get(musicChannelID);
 
     voiceChannel.join().then(async connection  => {
 
@@ -268,6 +272,11 @@ function playMusic(voiceChannel){
         // Oh no, it errored! Let's log it to console :)
         console.error(e);
     });
+}
+
+function stopMusic() {
+    const voiceChannel = client.channels.cache.get(musicChannelID);
+    voiceChannel.leave();
 }
 
 // Executes every 30 minutes
