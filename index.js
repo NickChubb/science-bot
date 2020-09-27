@@ -176,7 +176,7 @@ function updateCalendar() {
 async function showEvents(message) {
 
     const eventsList = await Events.findAll({ order: [['date', 'DESC']] });
-    const msg = '```diff\n';
+    var msg = '```diff\n';
 
     // Display table with all events and their IDs
     eventsList.forEach(event => {
