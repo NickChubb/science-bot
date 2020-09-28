@@ -71,7 +71,7 @@ client.once('ready', async () => {
 client.on('message', async message => {
 	if (message.content.startsWith(`${prefix}`)) {
 
-        if (message.channel.id == eventsChannelID) {  // CHANGE TO MOD COMMAND
+        if (message.channel.id == modCommandsChannelID) {  // CHANGE TO MOD COMMAND
 
             let args = message.content.match(/(?:[^\s"]+|"[^"]*")+/g);
             let command = args[0].substring(1); // Remove prefix from command
@@ -187,7 +187,10 @@ async function showEvents(message) {
 }
 
 /**
- * Creates an Embed for a specified event
+ * Creates an Embed for a given event.
+ * 
+ * event is an object with fields = { id: UUID, title: STRING, description: STRING, date: YYYY-MM-DD, 
+ *                                          startTime: STRING, endTime: STRING, location: STRING, URL: STRING }
  */
 function createEventEmbed(event){
 
@@ -222,7 +225,7 @@ function createEventEmbed(event){
 }
 
 /**
- * The main update loop of the bot, commands to be executed every 30 minutes
+ * The main update loop of the bot, commands to be executed every 30 minutes.
  */
 async function updateLoop(){
 
@@ -260,7 +263,13 @@ async function updateLoop(){
     }
 }
 
-// https://github.com/fent/node-ytdl-core/issues/399
+
+/**
+ * Make Hawking play music.
+ * 
+ * Links:
+ *  https://github.com/fent/node-ytdl-core/issues/399
+ */
 function playMusic(){
 
     const voiceChannel = client.channels.cache.get(musicChannelID);
@@ -286,6 +295,9 @@ function playMusic(){
     });
 }
 
+/**
+ * Stop Hawking from playing music.
+ */
 function stopMusic() {
     const voiceChannel = client.channels.cache.get(musicChannelID);
     voiceChannel.leave();
