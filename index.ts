@@ -50,7 +50,7 @@ const Events = sequelize.define('events', {
     URL: Sequelize.STRING
 });
 
-// Displays console log when bot is successfully running
+// Runs the body once the client is connected to the server and ready
 client.once('ready', async () => {
     console.log('Ready!');
     console.log('initiated: ' + time.format("YYYY-MM-DD HH:mma"));
@@ -68,112 +68,132 @@ client.once('ready', async () => {
     }
 });
 
+/**
+ * Response when the client recieves a message.  This is where chat commands go.
+ */
 client.on('message', async message => {
-	if (message.content.startsWith(`${prefix}`)) {
 
-        if (message.channel.id == modCommandsChannelID) {  // CHANGE TO MOD COMMAND
+    if (!message.content.startsWith(`${prefix}`)) { return };
 
-            let args = message.content.match(/(?:[^\s"]+|"[^"]*")+/g);
-            let command = args[0].substring(1); // Remove prefix from command
-            args.shift(); // Remove first element (command) from args
+    const modChannel = message.channel.id == modCommandsChannelID
+    if (message.channel == modCommandsChannelID) { message.reply('```diff\n- Sorry, I only respond to commands in the mod-commands channel.\n```'); return; };
 
-            if (command == 'add') {
+    let args = message.content.match(/(?:[^\s"]+|"[^"]*")+/g);
+    let command = args[0].substring(1); // Remove prefix from command
+    args.shift(); // Remove first element (command) from args
 
-                if (args.length == 7) {
+    switch (command) {
+        case 'add': {
 
-                    eventTitle = args[0].split('"').join('');
-                    eventDescription = args[1].split('"').join('');
-                    eventLocation = args[2].split('"').join('');
-                    eventDate = args[3];
-                    eventStartTime = args[4];
-                    eventEndTime = args[5];
-                    eventURL = args[6];
-    
-                    const newEvent = await Events.create({
-                        title: eventTitle,
-                        description: eventDescription,
-                        location: eventLocation,
-                        date: eventDate,
-                        startTime: eventStartTime,
-                        endTime: eventEndTime,
-                        URL: eventURL,
-                    });
-                
-                    message.reply('```diff\n+ Event Added to Calendar: ' + args.join(', ') + ' with id: ' + newEvent.id + '\n```');
-                    updateCalendar();
-    
-                } else {
-                    message.reply('```diff\n- ERROR: Incorrect number of arguements.\n\n- +add "<title>" "<description>" "<location>" <date (YYYY-MM-DD)> <start_time> <end_time> <URL>```'); //Red text
-                }
+            if (args.length == 7) {
+
+                const eventTitle = args[0].split('"').join('');
+                const eventDescription = args[1].split('"').join('');
+                const eventLocation = args[2].split('"').join('');
+                const eventDate = args[3];
+                const eventStartTime = args[4];
+                const eventEndTime = args[5];
+                const eventURL = args[6];
+
+                const newEvent = await Events.create({
+                    title: eventTitle,
+                    description: eventDescription,
+                    location: eventLocation,
+                    date: eventDate,
+                    startTime: eventStartTime,
+                    endTime: eventEndTime,
+                    URL: eventURL,
+                });
             
-            } else if (command == 'show') {
-                
-                showEvents(message);
-
-            } else if (command == 'del') {
-
-                if (args.length == 1) {
-
-                    const delID = args[0];
-                    const rowCount = await Events.destroy({ where: { id: delID } });
-                    if   (!rowCount) return message.reply('```diff\n- ERROR: That event does not exist.\n```');
-                    return message.reply('```diff\n+ Event deleted successfully\n```');
-
-                } else {
-                    message.reply('```diff\n- ERROR: Incorrect number of arguements.\n\n- +del <id>```'); //Red text
-                }
-            } else if (command == 'test') { // Testing command
-                //updateLoop();
+                message.reply('```diff\n+ Event Added to Calendar: ' + args.join(', ') + ' with id: ' + newEvent.id + '\n```');
                 updateCalendar();
-            } else if (command == 'music') {
 
-                const arg = args[0];
-                switch (arg) {
-                    case 'stop':
-                        stopMusic();
-                        break;
-                    case 'start':
-                        playMusic();
-                        break;
-                    default:
-                        message.reply('```diff\n- Sorry, I don\'t know that command. 🤔\n\n- +music <start/stop>```'); //Red text
-                }
             } else {
-                message.reply('```diff\n- Sorry, I don\'t know that command.\n```'); //Red text
+                message.reply('```diff\n- ERROR: Incorrect number of arguements.\n\n- +add "<title>" "<description>" "<location>" <date (YYYY-MM-DD)> <start_time> <end_time> <URL>```'); //Red text
             }
-            
-        } else {
-            message.reply('```diff\n- Sorry, I only respond to commands in the mod-commands channel.\n```'); //Red text
+
+            break;
+        } 
+        case 'del': {
+
+            if (args.length == 1) {
+
+                const delID = args[0];
+                const rowCount = await Events.destroy({ where: { id: delID } });
+                if   (!rowCount) return message.reply('```diff\n- ERROR: That event does not exist.\n```');
+                return message.reply('```diff\n+ Event deleted successfully\n```');
+
+            } else {
+                message.reply('```diff\n- ERROR: Incorrect number of arguements.\n\n- +del <id>```'); //Red text
+            }
+
+            break;
+        }
+        case 'show': {
+            // Display a table of all scheduled events
+
+            generateEventsTable(message);
+
+            break;
+        } 
+        case 'music': {
+
+            const arg = args[0];
+            switch (arg) {
+                case 'stop':
+                    stopMusic();
+                    break;
+                case 'start':
+                    playMusic();
+                    break;
+                default:
+                    message.reply('```diff\n- Sorry, I don\'t know that command. 🤔\n\n- +music <start/stop>```'); //Red text
+            }
+
+            break;
+        }
+        default: {
+            message.reply('```diff\n- Sorry, I don\'t know that command. 🤔\n```');
         }
     }
 });
 
 /**
- * Creates the message to be sent in the events channel
+ * Creates and sends the embeds for each event in the database to the events channel.
+ * 
+ * @param {Discord.Client.channel} channel
  */
 async function createCalendar(channel){
 
     const eventsList = await Events.findAll({ order: [['date', 'DESC']] });
 
     eventsList.forEach(event => {
-        eventEmbed = createEventEmbed(event.dataValues);
+        const eventEmbed = createEventEmbed(event.dataValues);
         channel.send(eventEmbed);
     });
 }
 
+/**
+ * Deletes the previous calendar embeds and repopulates Events Channel with new ones.
+ */
 function updateCalendar() {
     
     console.log("Calendar updating");
     
-    const chnnl = client.channels.cache.get(eventsChannelID);
+    const eventsChannel = client.channels.cache.get(eventsChannelID);
 
     // Delete all the messages in the channel
-    chnnl.bulkDelete(100);
+    eventsChannel.bulkDelete(100);
     // Create new calendar of messages
-    createCalendar(chnnl);
+    createCalendar(eventsChannel);
 }
 
-async function showEvents(message) {
+/**
+ * Displays all events in the database with their corresponding IDs.
+ * 
+ * @param {Discord.message} message 
+ */
+async function generateEventsTable(message) {
 
     const eventsList = await Events.findAll({ order: [['date', 'DESC']] });
     var msg = '```diff\n';
@@ -225,6 +245,19 @@ function createEventEmbed(event){
 }
 
 /**
+ * Sends an embed notifcation to the announements channel.
+ * 
+ * @param {Event} event See createEventEmbed for info on Event object.
+ */
+function sendAnnouncement(event){
+
+    const announcementsChannel = client.channels.cache.get(announcementsChannelID);
+
+    var msg = 'An event is happening soon!'
+
+}
+
+/**
  * The main update loop of the bot, commands to be executed every 30 minutes.
  */
 async function updateLoop(){
@@ -240,6 +273,7 @@ async function updateLoop(){
             if(now.isAfter(eventDateTime.subtract(1, 'hours'))){
 
                 // Alert to notifications channel
+                sendAnnouncement(event);
 
             }
         }
@@ -263,7 +297,6 @@ async function updateLoop(){
     }
 }
 
-
 /**
  * Make Hawking play music.
  * 
@@ -286,11 +319,14 @@ function playMusic(){
                 return format.url;
             } else return ytdl.downloadFromInfo(info, { type: 'opus' });
         }
+
         connection.play(stream());
-        setInterval(connection.play(stream), 3600000);  //restart every hour
+        setInterval( () => {
+            connection.play(stream);
+            console.log("Reloading music stream...");
+        }, 3600000);  //restart every hour
         
     }).catch(e => {
-        
         console.error(e);
     });
 }

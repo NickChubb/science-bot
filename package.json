@@ -2,7 +2,7 @@
   "name": "science-bot",
   "version": "1",
   "description": "A discord Science Event Bot for the SFU Science Discord",
-  "main": "index.js",
+  "main": "index.ts",
   "license": "MIT",
   "dependencies": {
     "@discordjs/opus": "^0.3.2",
