@@ -50,7 +50,9 @@ const Events = sequelize.define('events', {
     URL: Sequelize.STRING
 });
 
+const musicUsers = sequelize.define('musicUsers', {
 
+});
 
 // Runs the body once the client is connected to the server and ready
 client.once('ready', async () => {
@@ -161,7 +163,7 @@ client.on('message', async message => {
 });
 
 /**
- * Hawking determines when people join his voice channel
+ * Hawking determines when users join his voice channel
  */
 client.on('voiceStateUpdate', (oldState, newState) => {
     if (!isMusicOn) { return }; // Update later to check if in Voice Channel instead...
@@ -169,7 +171,7 @@ client.on('voiceStateUpdate', (oldState, newState) => {
     const newUserChannelID = newState.channelID;
     const oldUserChannelID = oldState.channelID;
 
-    if ( oldUserChannelID === undefined && newUserChannelID === musicChannelID ) {
+    if ( oldUserChannelID !== musicChannelID && newUserChannelID === musicChannelID ) {
 
         console.log(`${newState.member.displayName} has joined the music channel`);
 
