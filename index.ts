@@ -12,7 +12,7 @@ const { token,
         modCommandsChannelID, 
         announcementsChannelID,
         musicChannelID,
-        musicOn } = require('./config.json');
+        isMusicOn } = require('./config.json');
 
 const client = new Discord.Client();
 var time = moment();
@@ -50,6 +50,8 @@ const Events = sequelize.define('events', {
     URL: Sequelize.STRING
 });
 
+
+
 // Runs the body once the client is connected to the server and ready
 client.once('ready', async () => {
     console.log('Ready!');
@@ -63,7 +65,7 @@ client.once('ready', async () => {
     }
 
     // Music Integration
-    if (musicOn) {
+    if (isMusicOn) {
         playMusic();
     }
 });
@@ -155,6 +157,27 @@ client.on('message', async message => {
         default: {
             message.reply('```diff\n- Sorry, I don\'t know that command. 🤔\n```');
         }
+    }
+});
+
+/**
+ * Hawking determines when people join his voice channel
+ */
+client.on('voiceStateUpdate', (oldState, newState) => {
+    if (!isMusicOn) { return }; // Update later to check if in Voice Channel instead...
+
+    const newUserChannelID = newState.channelID;
+    const oldUserChannelID = oldState.channelID;
+
+    if ( oldUserChannelID === undefined && newUserChannelID === musicChannelID ) {
+
+        console.log(`${newState.member.displayName} has joined the music channel`);
+
+        // Check if not in DB
+        // Send DM welcoming and ask to mute if not in DB
+
+    } else if ( oldUserChannelID === musicChannelID && newUserChannelID !== musicChannelID ) {
+        console.log(`${newState.member.displayName} has left the music channel`);
     }
 });
 
