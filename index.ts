@@ -50,8 +50,11 @@ const Events = sequelize.define('events', {
     URL: Sequelize.STRING
 });
 
-const musicUsers = sequelize.define('musicUsers', {
-
+const MusicUsers = sequelize.define('musicUsers', {
+    user: {
+        type: Sequelize.STRING,
+        primaryKey: true
+    }
 });
 
 // Runs the body once the client is connected to the server and ready
@@ -79,8 +82,8 @@ client.on('message', async message => {
 
     if (!message.content.startsWith(`${prefix}`)) { return };
 
-    const modChannel = message.channel.id == modCommandsChannelID
-    if (message.channel == modCommandsChannelID) { message.reply('```diff\n- Sorry, I only respond to commands in the mod-commands channel.\n```'); return; };
+    const modCommandsChannel = await client.channels.cache.get(modCommandsChannelID);
+    if (message.channel != modCommandsChannel) { message.reply('```diff\n- Sorry, I only respond to commands in the mod-commands channel.\n```'); return; };
 
     let args = message.content.match(/(?:[^\s"]+|"[^"]*")+/g);
     let command = args[0].substring(1); // Remove prefix from command
@@ -165,7 +168,7 @@ client.on('message', async message => {
 /**
  * Hawking determines when users join his voice channel
  */
-client.on('voiceStateUpdate', (oldState, newState) => {
+client.on('voiceStateUpdate', async (oldState, newState) => {
     if (!isMusicOn) { return }; // Update later to check if in Voice Channel instead...
 
     const newUserChannelID = newState.channelID;
@@ -174,8 +177,16 @@ client.on('voiceStateUpdate', (oldState, newState) => {
     if ( oldUserChannelID !== musicChannelID && newUserChannelID === musicChannelID ) {
 
         console.log(`${newState.member.displayName} has joined the music channel`);
+        const userID = newState.member.user;
 
-        // Check if not in DB
+        /*
+        const isUserUnique = await MusicUsers.findOne({where: {user: userID}});
+
+        if (isUserUnique) {
+            console.log("first time joining!");
+        }
+        */
+
         // Send DM welcoming and ask to mute if not in DB
 
     } else if ( oldUserChannelID === musicChannelID && newUserChannelID !== musicChannelID ) {
@@ -280,6 +291,8 @@ function sendAnnouncement(event){
 
     var msg = 'An event is happening soon!'
 
+
+
 }
 
 /**
@@ -340,7 +353,7 @@ function playMusic(){
         const info = await ytdl.getInfo('https://www.youtube.com/watch?v=5qap5aO4i9A');
         const stream = () => {
             if (info.livestream) {
-                const format = ytdl.chooseFormat(info.formats, { quality: [128,127,120,96,95,94,93] });
+                const format = ytdl.chooseFormat(info.formats, { quality: 'highest' /*[128,127,120,96,95,94,93]*/ });
                 return format.url;
             } else return ytdl.downloadFromInfo(info, { type: 'opus' });
         }
