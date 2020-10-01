@@ -179,6 +179,8 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
         console.log(`${newState.member.displayName} has joined the music channel`);
         const userID = newState.member.user;
 
+        console.log(`userID: ${userID}`);
+
         /*
         const isUserUnique = await MusicUsers.findOne({where: {user: userID}});
 
@@ -359,10 +361,12 @@ function playMusic(){
         }
 
         connection.play(stream());
+        /*
         setInterval( () => {
             connection.play(stream);
             console.log("Reloading music stream...");
         }, 3600000);  //restart every hour
+        */
         
     }).catch(e => {
         console.error(e);
