@@ -141,7 +141,6 @@ client.on('message', async message => {
         }
         case 'show': {
             // Display a table of all scheduled events
-
             generateEventsTable(message);
 
             break;
@@ -160,6 +159,15 @@ client.on('message', async message => {
                     message.reply('```diff\n- Sorry, I don\'t know that command. 🤔\n\n- +music <start/stop>```'); //Red text
             }
 
+            break;
+        }
+        case 'test': {
+            // Test case
+
+            const eventsList = await Events.findAll({ order: [['date', 'DESC']] });
+            const event1 = eventsList[1];
+
+            sendAnnouncement(event1);
             break;
         }
         default: {
@@ -196,7 +204,6 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
             sendWelcomeMessage(user);
 
         } catch {
-
             //User's ID is already in DB
             console.log(`It's not ${user.displayName}'s first time joining!`);
         }
@@ -301,16 +308,26 @@ function sendAnnouncement(event){
 
     const announcementsChannel = client.channels.cache.get(announcementsChannelID);
 
-    var msg = `${event.title} is happening in less than an hour!`
+    var eventLocation = event.location;
 
+    if (event.location.startsWith("#")) {
 
+        const location = event.location.substring(1);
+        const channelId = client.channels.find(channel => channel.name === location).id;
+        const eventLocation = `<#${channelId}>`;
+
+    }
+
+    var msg = `.\n🎉   __the event **${event.title}** is happening in less than an hour!__   🎉\n\nHead on over to **${eventLocation}** from **${event.startTime}** to **${event.endTime}** get involved!!\n\n*${event.description}*\n.`
+
+    announcementsChannel.send(msg);
 
 }
 
 /**
  * The main update loop of the bot, commands to be executed every 30 minutes.
  */
-async function updateLoop(){
+async function eventUpdateLoop(){
 
     const now = moment();
     const eventsList = await Events.findAll({ order: [['date', 'DESC']] });
@@ -370,12 +387,20 @@ function playMusic(){
             } else return ytdl.downloadFromInfo(info, { type: 'opus' });
         }
 
-        connection.play(stream());
+        var dispatcher = connection.play(stream());
+
+        dispatcher.on('finish', () => {
+            dispatcher = connection.play(stream());
+        });
+
+        dispatcher.on('error', console.error);
         
+        /*
         setInterval( () => {
             console.log("Reloading music stream...");
             connection.play(stream());
         }, 3600000);
+        */
         
         
     }).catch(e => {
@@ -400,6 +425,6 @@ function sendWelcomeMessage (member) {
 }
 
 // Executes every 30 minutes
-setInterval(updateLoop, 1800000);
+setInterval(eventUpdateLoop, 1800000);
 
 client.login(token);
