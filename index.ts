@@ -71,6 +71,9 @@ client.once('ready', async () => {
 
     // Music Integration
     if (isMusicOn) {
+        MusicUsers.sync();
+        console.log("MusicUsers database created successfully");
+
         playMusic();
     }
 });
@@ -176,20 +179,27 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
 
     if ( oldUserChannelID !== musicChannelID && newUserChannelID === musicChannelID ) {
 
-        console.log(`${newState.member.displayName} has joined the music channel`);
-        const userID = newState.member.user;
+        const user = newState.member;
+        const userID = user.user.id;
 
-        console.log(`userID: ${userID}`);
+        console.log(`${user.displayName} has joined the music channel`);
 
-        /*
-        const isUserUnique = await MusicUsers.findOne({where: {user: userID}});
+        try {
 
-        if (isUserUnique) {
-            console.log("first time joining!");
+            const newUser = await MusicUsers.create({
+                user: userID
+            });
+
+            // User's ID is added to DB successfully
+            console.log(`It's ${user.displayName}'s first time joining!`);
+
+            sendWelcomeMessage(user);
+
+        } catch {
+
+            //User's ID is already in DB
+            console.log(`It's not ${user.displayName}'s first time joining!`);
         }
-        */
-
-        // Send DM welcoming and ask to mute if not in DB
 
     } else if ( oldUserChannelID === musicChannelID && newUserChannelID !== musicChannelID ) {
         console.log(`${newState.member.displayName} has left the music channel`);
@@ -291,7 +301,7 @@ function sendAnnouncement(event){
 
     const announcementsChannel = client.channels.cache.get(announcementsChannelID);
 
-    var msg = 'An event is happening soon!'
+    var msg = `${event.title} is happening in less than an hour!`
 
 
 
@@ -376,9 +386,17 @@ function playMusic(){
 /**
  * Stop Hawking from playing music.
  */
-function stopMusic() {
+function stopMusic () {
     const voiceChannel = client.channels.cache.get(musicChannelID);
     voiceChannel.leave();
+}
+
+/**
+ * Sends a DM to a user reminding them to mute and chill
+ */
+function sendWelcomeMessage (member) {
+    const msg = `Hey, you're recieving this cause it's your first time in my lo-fi channel.  Please remember to mute your mic and have a chill time. 😎`;
+    member.send(msg);
 }
 
 // Executes every 30 minutes
