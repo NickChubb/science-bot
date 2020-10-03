@@ -393,7 +393,9 @@ function playMusic(){
             dispatcher = connection.play(stream());
         });
 
-        dispatcher.on('error', console.error);
+        dispatcher.on('error', () => {
+            dispatcher = connection.play(stream());
+        });
         
         /*
         setInterval( () => {
