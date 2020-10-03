@@ -394,7 +394,10 @@ function playMusic(){
         });
 
         dispatcher.on('error', () => {
-            dispatcher = connection.play(stream());
+            
+            setTimeout( () => { 
+                connection.play(stream()) 
+            }, 1000);
         });
         
         /*
