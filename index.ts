@@ -390,11 +390,19 @@ function playMusic(){
         var dispatcher = connection.play(stream());
 
         dispatcher.on('finish', () => {
+
+            console.log('Song has finished playing');
+
             dispatcher = connection.play(stream());
         });
 
         dispatcher.on('error', () => {
-            dispatcher = connection.play(stream());
+
+            console.error;
+
+            setTimeout( () => { 
+                connection.play(stream()) 
+            }, 1000);
         });
         
         /*
