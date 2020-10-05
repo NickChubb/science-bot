@@ -382,7 +382,7 @@ function playMusic(){
         const info = await ytdl.getInfo('https://www.youtube.com/watch?v=5qap5aO4i9A');
         const stream = () => {
             if (info.livestream) {
-                const format = ytdl.chooseFormat(info.formats, { quality: 'highest' /*[128,127,120,96,95,94,93]*/ });
+                const format = ytdl.chooseFormat(info.formats, { quality: 'highestaudio', highWaterMark: 1024 * 1024 * 10 /*[128,127,120,96,95,94,93]*/ });
                 return format.url;
             } else return ytdl.downloadFromInfo(info, { type: 'opus' });
         }
