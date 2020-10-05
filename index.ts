@@ -307,18 +307,16 @@ function createEventEmbed(event){
 function sendAnnouncement(event){
 
     const announcementsChannel = client.channels.cache.get(announcementsChannelID);
-
     var eventLocation = event.location;
 
     if (event.location.startsWith("#")) {
 
         const location = event.location.substring(1);
-        const channelId = client.channels.find(channel => channel.name === location).id;
-        const eventLocation = `<#${channelId}>`;
+        eventLocation = client.channels.cache.find(channel => channel.name.endsWith(location)) ?? event.location;
 
     }
 
-    var msg = `.\n🎉   __the event **${event.title}** is happening in less than an hour!__   🎉\n\nHead on over to **${eventLocation}** from **${event.startTime}** to **${event.endTime}** get involved!!\n\n*${event.description}*\n.`
+    var msg = `.\n👉   The event **${event.title}** is happening in less than an hour!   \n\n👉   Head on over to **${eventLocation}** from **${event.startTime}** to **${event.endTime}** get involved!!\n\n👉   *${event.description}*\n.`
 
     announcementsChannel.send(msg);
 
