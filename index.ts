@@ -73,8 +73,7 @@ client.once('ready', async () => {
     if (isMusicOn) {
         MusicUsers.sync();
         console.log("MusicUsers database created successfully");
-
-        playMusic();
+        
     }
 });
 
@@ -186,6 +185,8 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
     const oldUserChannelID = oldState.channelID;
 
     if ( oldUserChannelID !== musicChannelID && newUserChannelID === musicChannelID ) {
+
+        playMusic();
 
         const user = newState.member;
         const userID = user.user.id;
@@ -322,6 +323,7 @@ function sendAnnouncement(event){
 
     var msg = `.\n👉   The event **${event.title}** is happening in less than an hour!   \n\n👉   Head on over to **${eventLocation}** from **${event.startTime}** to **${event.endTime}** get involved!!\n\n👉   *${event.description}*\n.`;
     announcementsChannel.send(msg);
+    console.log("Sent announcement.");
 }
 
 /**
