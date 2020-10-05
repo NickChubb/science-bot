@@ -312,14 +312,16 @@ function sendAnnouncement(event){
     if (event.location.startsWith("#")) {
 
         const location = event.location.substring(1);
-        eventLocation = client.channels.cache.find(channel => channel.name.endsWith(location)) ?? event.location;
+        eventLocation = client.channels.cache.find(channel => channel.name.endsWith(location));
+
+        if (eventLocation === undefined) {
+            eventLocation = event.location;
+        }
 
     }
 
-    var msg = `.\n👉   The event **${event.title}** is happening in less than an hour!   \n\n👉   Head on over to **${eventLocation}** from **${event.startTime}** to **${event.endTime}** get involved!!\n\n👉   *${event.description}*\n.`
-
+    var msg = `.\n👉   The event **${event.title}** is happening in less than an hour!   \n\n👉   Head on over to **${eventLocation}** from **${event.startTime}** to **${event.endTime}** get involved!!\n\n👉   *${event.description}*\n.`;
     announcementsChannel.send(msg);
-
 }
 
 /**
