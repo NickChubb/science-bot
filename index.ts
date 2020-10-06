@@ -343,10 +343,12 @@ function sendAnnouncement(event){
 async function eventUpdateLoop(){
 
     // Make Hawking stay in the music channel forever
+    /*
     if (client.guild.voice === undefined) {
         const voiceChannel = client.channels.cache.get(musicChannelID);
         voiceChannel.join();
     }
+    */
 
     const now = moment();
     const eventsList = await Events.findAll({ order: [['date', 'DESC']] });
