@@ -73,7 +73,9 @@ client.once('ready', async () => {
     if (isMusicOn) {
         MusicUsers.sync();
         console.log("MusicUsers database created successfully");
-        
+
+        playMusic();
+
     }
 });
 
@@ -191,7 +193,7 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
         const user = newState.member;
         const userID = user.user.id;
 
-        console.log(`${user.displayName} has joined the music channel`);
+        console.log(`%c ${user.displayName}` + ` has joined the music channel`, 'font-weight: bold');
 
         try {
 
@@ -270,15 +272,24 @@ async function generateEventsTable(message) {
  */
 function createEventEmbed(event){
 
-    var embedColour = '#0099ff';
-
     const eventDate = moment(event.date);
     const strDate = eventDate.format('dddd MMM Do, YYYY');
-
     const now = moment();
+    var embedColour = '#0099ff';
+    var thumbnailUrl = 'https://nchubb.com/sus/'; // Hosting DSU logos on my server
 
-    if(eventDate.isSame(now, 'date')){
+    // Change colour to green if event is today
+    if (eventDate.isSame(now, 'date')){
         embedColour = '#00FF7F';
+    }
+
+    // Generates a different thumbnail link depending on which DSU is organizing the event
+    if (event.title.includes("Physics Student Association") || event.title.includes("PSA")) {
+        thumbnailUrl += 'psa.png';
+    } else if (event.title.includes("Chemistry Student Society") || event.title.includes("CSS")) {
+        thumbnailUrl += 'css.png';
+    } else {
+        thumbnailUrl += 'sus.png';
     }
 
     const eventEmbed = new Discord.MessageEmbed()
@@ -331,6 +342,12 @@ function sendAnnouncement(event){
  */
 async function eventUpdateLoop(){
 
+    // Make Hawking stay in the music channel forever
+    if (client.guild.voice === undefined) {
+        const voiceChannel = client.channels.cache.get(musicChannelID);
+        voiceChannel.join();
+    }
+
     const now = moment();
     const eventsList = await Events.findAll({ order: [['date', 'DESC']] });
 
@@ -343,7 +360,6 @@ async function eventUpdateLoop(){
 
                 // Alert to notifications channel
                 sendAnnouncement(event);
-
             }
         }
     });
@@ -390,31 +406,20 @@ function playMusic(){
         }
 
         var dispatcher = connection.play(stream());
+        console.log("Playing music...");
 
         dispatcher.on('finish', () => {
-
             console.log('Song has finished playing');
-
             dispatcher = connection.play(stream());
         });
 
         dispatcher.on('error', () => {
-
             console.error;
-
             setTimeout( () => { 
                 connection.play(stream()) 
             }, 1000);
         });
-        
-        /*
-        setInterval( () => {
-            console.log("Reloading music stream...");
-            connection.play(stream());
-        }, 3600000);
-        */
-        
-        
+
     }).catch(e => {
         console.error(e);
     });
