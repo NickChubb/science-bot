@@ -193,7 +193,7 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
         const user = newState.member;
         const userID = user.user.id;
 
-        console.log(`%c ${user.displayName}` + ` has joined the music channel`, 'font-weight: bold');
+        console.log(`%c${user.displayName}` + ` has joined the music channel`, 'font-weight: bold');
 
         try {
 
@@ -358,7 +358,7 @@ async function eventUpdateLoop(){
         const eventDateTime = moment(event.date + ' ' + event.startTime, 'YYYY-MM-DD hh:mma');
         if(eventDateTime.isSame(now, 'date')){
             // Check if time now is after 1 hour before the event
-            if(now.isAfter(eventDateTime.subtract(1, 'hours'))){
+            if(now.isAfter(eventDateTime.subtract(1, 'hours')) && now.isBefore(eventDateTime.subtract(30, 'minutes'))){
 
                 // Alert to notifications channel
                 sendAnnouncement(event);
