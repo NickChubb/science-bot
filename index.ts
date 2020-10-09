@@ -181,7 +181,7 @@ client.on('message', async message => {
             });
 
             const winningMember = raffleMembers[Math.floor(Math.random() * raffleMembers.length)];
-            message.channel.send(`The winner of the draw is ${winningMember.displayName}!!  🎉  Check your DMs!`);
+            message.channel.send(`The winner of the draw is ${winningMember}!!  🎉  Check your DMs!`);
             raffleWinners.push(winningMember);
 
             raffleMembers = [];
