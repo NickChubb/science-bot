@@ -171,7 +171,7 @@ client.on('message', async message => {
             // Winners are added to the raffleWinners array which will reset each time the bot restarts.
             // SUS Execs can't win draws.
 
-            const voiceChannelMembers = message.user.voice.channel.members;
+            const voiceChannelMembers = message.member.voice.channel.members;
             var raffleMembers = []; 
 
             voiceChannelMembers.forEach(member => {
@@ -182,6 +182,7 @@ client.on('message', async message => {
 
             const winningMember = raffleMembers[Math.floor(Math.random() * raffleMembers.length)];
             message.channel.send(`The winner of the draw is ${winningMember.displayName}!!  🎉  Check your DMs!`);
+            raffleWinners.push(winningMember);
 
             raffleMembers = [];
             break;
