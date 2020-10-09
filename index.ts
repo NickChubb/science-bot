@@ -211,12 +211,12 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
     const newUserChannelID = newState.channelID;
     const oldUserChannelID = oldState.channelID;
 
+    const user = newState.member;
+    const userID = user.user.id;
+
     if ( oldUserChannelID !== musicChannelID && newUserChannelID === musicChannelID ) {
 
         playMusic();
-
-        const user = newState.member;
-        const userID = user.user.id;
 
         console.log(`%c${user.displayName}` + ` has joined the music channel`, 'font-weight: bold');
 
@@ -239,6 +239,9 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
     } else if ( oldUserChannelID === musicChannelID && newUserChannelID !== musicChannelID ) {
         console.log(`${newState.member.displayName} has left the music channel`);
     }
+
+    // If Hawking leaves the voice channel
+    if ( oldUserChannelID === musicChannelID && newUserChannelID !== musicChannelID && )
 
 
     /* 
@@ -512,7 +515,7 @@ async function eventUpdateLoop(){
         if(eventDateTime.isSame(now, 'date')){
 
             // Check if time now is after 1 hour before the event
-            if(now.isAfter(eventDateTime.subtract(1, 'hours')) && now.isBefore(eventDateTime.subtract(30, 'mins'))){
+            if(now.isAfter(eventDateTime.subtract(1, 'hours')) && !now.isAfter(eventDateTime.subtract(30, 'minutes'))){
 
                 console.log(`Sending announcement about: ${event.title}`);
 
