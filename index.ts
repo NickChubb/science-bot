@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-// index.js
+// index.ts
 
 const Discord = require('discord.js');
 const Sequelize = require('sequelize');
@@ -16,6 +16,9 @@ const { token,
 
 const client = new Discord.Client();
 var time = moment();
+
+// Implement isRaffleOn from config
+var raffleWinners = [];
 
 // Initialize the events database
 const sequelize = new Sequelize('database', 'user', 'password', {
@@ -86,8 +89,8 @@ client.on('message', async message => {
 
     if (!message.content.startsWith(`${prefix}`)) { return };
 
-    const modCommandsChannel = await client.channels.cache.get(modCommandsChannelID);
-    if (message.channel != modCommandsChannel) { message.reply('```diff\n- Sorry, I only respond to commands in the mod-commands channel.\n```'); return; };
+    //const modCommandsChannel = await client.channels.cache.get(modCommandsChannelID);
+    //if (message.channel != modCommandsChannel) { message.reply('```diff\n- Sorry, I only respond to commands in the mod-commands channel.\n```'); return; };
 
     let args = message.content.match(/(?:[^\s"]+|"[^"]*")+/g);
     let command = args[0].substring(1); // Remove prefix from command
@@ -141,12 +144,13 @@ client.on('message', async message => {
             break;
         }
         case 'show': {
-            // Display a table of all scheduled events
-            generateEventsTable(message);
+            // Display a table of all scheduled events.
 
+            generateEventsTable(message);
             break;
         } 
         case 'music': {
+            // Hawking's Music control commands.
 
             const arg = args[0];
             switch (arg) {
@@ -162,8 +166,28 @@ client.on('message', async message => {
 
             break;
         }
+        case 'draw': {
+            // Select a random member from the command user's voice channel to win a draw at random.
+            // Winners are added to the raffleWinners array which will reset each time the bot restarts.
+            // SUS Execs can't win draws.
+
+            const voiceChannelMembers = message.user.voice.channel.members;
+            var raffleMembers = []; 
+
+            voiceChannelMembers.forEach(member => {
+                if (!raffleWinners.includes(member) && !member.roles.cache.find(r => r.name === "exec-sus")) {
+                    raffleMembers.push(member);
+                }
+            });
+
+            const winningMember = raffleMembers[Math.floor(Math.random() * raffleMembers.length)];
+            message.channel.send(`The winner of the draw is ${winningMember.displayName}!!  🎉  Check your DMs!`);
+
+            raffleMembers = [];
+            break;
+        }
         case 'test': {
-            // Test case
+            // Test case.
 
             const eventsList = await Events.findAll({ order: [['date', 'DESC']] });
             const event1 = eventsList[1];
@@ -214,6 +238,45 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
     } else if ( oldUserChannelID === musicChannelID && newUserChannelID !== musicChannelID ) {
         console.log(`${newState.member.displayName} has left the music channel`);
     }
+
+
+    /* 
+    
+        If user joins channel {
+
+            const user = newState.member;
+            const userID = user.user.id;
+
+            console.log(`   ${user.displayName}` + ` has joined the music channel`);
+
+            try {
+
+                const newUser = await MusicUsers.create({
+                    user: userID
+                });
+
+                // User's ID is added to DB successfully
+                console.log(`   -> It's ${user.displayName}'s first time joining!`);
+
+                sendWelcomeMessage(user);
+
+            } catch {
+                //User's ID is already in DB
+                console.log(`   -> It's not ${user.displayName}'s first time joining!`);
+            }
+
+            if (only bot in channel) {
+                playMusic();
+            }
+
+        } else if user leaves channel and no one in channel except bot {
+            stopMusic();
+        }
+
+        If Hawking leaves channel => rejoin
+    
+    */
+
 });
 
 /**
@@ -338,53 +401,6 @@ function sendAnnouncement(event){
 }
 
 /**
- * The main update loop of the bot, commands to be executed every 30 minutes.
- */
-async function eventUpdateLoop(){
-
-    // Make Hawking stay in the music channel forever
-    /*
-    if (client.guild.voice === undefined) {
-        const voiceChannel = client.channels.cache.get(musicChannelID);
-        voiceChannel.join();
-    }
-    */
-
-    const now = moment();
-    const eventsList = await Events.findAll({ order: [['date', 'DESC']] });
-
-    // Manages alerts to notification channel if event is less than 1 hour away
-    eventsList.forEach(event => {
-        const eventDateTime = moment(event.date + ' ' + event.startTime, 'YYYY-MM-DD hh:mma');
-        if(eventDateTime.isSame(now, 'date')){
-            // Check if time now is after 1 hour before the event
-            if(now.isAfter(eventDateTime.subtract(1, 'hours')) && now.isBefore(eventDateTime.subtract(30, 'minutes'))){
-
-                // Alert to notifications channel
-                sendAnnouncement(event);
-            }
-        }
-    });
-
-    if ( !(time.isSame(now, 'date')) ) { // Returns true if not the same day as last time
-        console.log("New day! " + time.format("YYYY-MM-DD HH:mma"));
-        time = now;
-
-        // If any event is now today, update the calendar
-        eventsList.forEach(event => {
-            if(moment(event.date).isSame(time, 'date')){
-                updateCalendar();
-            } else if(moment(event.date).isBefore(time, 'date')){
-                // Remove past event from DB
-                Events.destroy({ where: {id: event.id} });
-                updateCalendar();
-            }
-        });
-
-    }
-}
-
-/**
  * Make Hawking play music.
  * 
  * Links:
@@ -427,6 +443,34 @@ function playMusic(){
     });
 }
 
+/*
+
+function joinVoiceChannel (voiceChannel) {
+    console.log(`Joining voice channel: ${voiceChannel.name}`);
+
+    voiceChannel.join();
+}
+
+function leaveVoiceChannel (voiceChannel) {
+    console.log(`Leaving voice channel: ${voiceChannel.name}`);
+
+    voiceChannel.leave();
+}
+
+function playMusic (connection) {
+    console.log("Playing music...");
+
+    connection.play(stream());
+}
+
+function stopMusic (connection) {
+    console.log("Stopping music...");
+
+    connection.stop();
+}
+
+*/
+
 /**
  * Stop Hawking from playing music.
  */
@@ -439,11 +483,64 @@ function stopMusic () {
  * Sends a DM to a user reminding them to mute and chill
  */
 function sendWelcomeMessage (member) {
-    const msg = `Hey, you're recieving this cause it's your first time in my lo-fi channel.  Please remember to mute your mic and have a chill time. 😎`;
+    console.log(`Sending welcome message to: ${member.displayName}`);
+
+    const msg = `Hey ${member.displayName}, you're recieving this cause it's your first time in my lo-fi channel.  Please remember to mute your mic and have a chill time. 😎`;
     member.send(msg);
+}
+
+/**
+ * The main update loop of the bot, commands to be executed every 30 minutes.
+ */
+async function eventUpdateLoop(){
+
+    // Make Hawking stay in the music channel forever
+    /*
+    if (client.guild.voice === undefined) {
+        const voiceChannel = client.channels.cache.get(musicChannelID);
+        voiceChannel.join();
+    }
+    */
+
+    const now = moment();
+    const eventsList = await Events.findAll({ order: [['date', 'DESC']] });
+
+    // Manages alerts to notification channel if event is less than 1 hour away
+    eventsList.forEach(event => {
+        const eventDateTime = moment(event.date + ' ' + event.startTime, 'YYYY-MM-DD hh:mma');
+        if(eventDateTime.isSame(now, 'date')){
+
+            // Check if time now is after 1 hour before the event
+            if(now.isAfter(eventDateTime.subtract(1, 'hours')) && now.isBefore(eventDateTime.subtract(30, 'mins'))){
+
+                console.log(`Sending announcement about: ${event.title}`);
+
+                // Alert to notifications channel
+                sendAnnouncement(event);
+            }
+        }
+    });
+
+    if ( !(time.isSame(now, 'date')) ) { // Returns true if not the same day as last time
+        console.log("New day! " + time.format("YYYY-MM-DD HH:mma"));
+        time = now;
+
+        // If any event is now today, update the calendar
+        eventsList.forEach(event => {
+            if(moment(event.date).isSame(time, 'date')){
+                updateCalendar();
+            } else if(moment(event.date).isBefore(time, 'date')){
+                // Remove past event from DB
+                Events.destroy({ where: {id: event.id} });
+                updateCalendar();
+            }
+        });
+
+    }
 }
 
 // Executes every 30 minutes
 setInterval(eventUpdateLoop, 1800000);
 
+// Log the client in to the server
 client.login(token);
