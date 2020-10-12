@@ -518,6 +518,8 @@ async function eventUpdateLoop(){
         const eventDateTime = moment(event.date + ' ' + event.startTime, 'YYYY-MM-DD hh:mma');
         if(eventDateTime.isSame(now, 'date')){
 
+            console.log(`Time (now): ${now}, eventDateTime: ${eventDateTime}, eventDateTime - 30 mins: ${eventDateTime.subtract({minutes: 30})}`);
+
             // Check if time now is after 1 hour before the event
             // if(now.isAfter(eventDateTime.subtract(1, 'hours')) && ! now.isAfter(eventDateTime.subtract(30, 'minutes'))){
             if(now.isBetween(eventDateTime.subtract({minutes: 60}), eventDateTime.subtract({minutes: 30}))){
