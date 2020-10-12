@@ -7,7 +7,8 @@ const Sequelize = require('sequelize');
 const moment = require('moment');
 const ytdl = require("ytdl-core");
 const { token, 
-        prefix, 
+        prefix,
+        botID,
         eventsChannelID,
         modCommandsChannelID, 
         announcementsChannelID,
@@ -16,8 +17,8 @@ const { token,
 
 const client = new Discord.Client();
 var time = moment();
+var connection;
 
-// Implement isRaffleOn from config
 var raffleWinners = [];
 
 // Initialize the events database
@@ -77,8 +78,7 @@ client.once('ready', async () => {
         MusicUsers.sync();
         console.log("MusicUsers database created successfully");
 
-        playMusic();
-
+        joinVoiceChannel();
     }
 });
 
@@ -155,10 +155,10 @@ client.on('message', async message => {
             const arg = args[0];
             switch (arg) {
                 case 'stop':
-                    stopMusic();
+                    stopMusic(connection);
                     break;
                 case 'start':
-                    playMusic();
+                    playMusic(connection);
                     break;
                 default:
                     message.reply('```diff\n- Sorry, I don\'t know that command. 🤔\n\n- +music <start/stop>```'); //Red text
@@ -210,49 +210,17 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
 
     const newUserChannelID = newState.channelID;
     const oldUserChannelID = oldState.channelID;
+    const voiceChannel = client.channels.cache.get(musicChannelID);
 
     const user = newState.member;
     const userID = user.user.id;
 
-    if ( oldUserChannelID !== musicChannelID && newUserChannelID === musicChannelID ) {
+    if ( !user.bot ) {
+        if ( oldUserChannelID !== musicChannelID && newUserChannelID === musicChannelID ) {
 
-        playMusic();
+            playMusic(connection);
 
-        console.log(`%c${user.displayName}` + ` has joined the music channel`, 'font-weight: bold');
-
-        try {
-
-            const newUser = await MusicUsers.create({
-                user: userID
-            });
-
-            // User's ID is added to DB successfully
-            console.log(`It's ${user.displayName}'s first time joining!`);
-
-            sendWelcomeMessage(user);
-
-        } catch {
-            //User's ID is already in DB
-            console.log(`It's not ${user.displayName}'s first time joining!`);
-        }
-
-    } else if ( oldUserChannelID === musicChannelID && newUserChannelID !== musicChannelID ) {
-        console.log(`${newState.member.displayName} has left the music channel`);
-    }
-
-    // If Hawking leaves the voice channel
-    if ( oldUserChannelID === musicChannelID && newUserChannelID !== musicChannelID && )
-
-
-    /* 
-    
-        If user joins channel {
-
-            const user = newState.member;
-            const userID = user.user.id;
-
-            console.log(`   ${user.displayName}` + ` has joined the music channel`);
-
+            console.log(`   ${user.displayName} (${userID}) has joined the music channel`);
             try {
 
                 const newUser = await MusicUsers.create({
@@ -260,26 +228,34 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
                 });
 
                 // User's ID is added to DB successfully
-                console.log(`   -> It's ${user.displayName}'s first time joining!`);
+                console.log(`    -> It's ${user.displayName}'s first time joining!`);
 
                 sendWelcomeMessage(user);
 
             } catch {
                 //User's ID is already in DB
-                console.log(`   -> It's not ${user.displayName}'s first time joining!`);
+                console.log(`    -> It's not ${user.displayName}'s first time joining!`);
             }
 
-            if (only bot in channel) {
-                playMusic();
-            }
+        } else if ( oldUserChannelID === musicChannelID && newUserChannelID !== musicChannelID ) {
 
-        } else if user leaves channel and no one in channel except bot {
-            stopMusic();
+            console.log(`${newState.member.displayName} has left the music channel`);
+
+            if (oldState.channel.members.find(user => !user.bot)) {
+                stopMusic(connection);
+            }
         }
+    } else {
 
-        If Hawking leaves channel => rejoin
+        // If Hawking leaves the voice channel
+        if ( oldUserChannelID === musicChannelID && newUserChannelID !== musicChannelID && user.bot ) {
+            
+            console.log(`Re-joining voice channel: ${voiceChannel.name}`);
+            connection = voiceChannel.join();
+        }
+    }
+
     
-    */
 
 });
 
@@ -399,7 +375,10 @@ function sendAnnouncement(event){
 
     }
 
-    var msg = `.\n👉   The event **${event.title}** is happening in less than an hour!   \n\n👉   Head on over to **${eventLocation}** from **${event.startTime}** to **${event.endTime}** get involved!!\n\n👉   *${event.description}*\n.`;
+    var msg = `.\n👉   The event **${event.title}** is happening in less than an hour!   \n\n`
+               + `👉   Head on over to **${eventLocation}** from **${event.startTime}** to **${event.endTime}** get involved!!\n\n`
+               + `👉   *${event.description}*\n.`;
+
     announcementsChannel.send(msg);
     console.log("Sent announcement.");
 }
@@ -410,6 +389,7 @@ function sendAnnouncement(event){
  * Links:
  *  https://github.com/fent/node-ytdl-core/issues/399
  */
+/*
 function playMusic(){
 
     const voiceChannel = client.channels.cache.get(musicChannelID);
@@ -422,7 +402,7 @@ function playMusic(){
         const info = await ytdl.getInfo('https://www.youtube.com/watch?v=5qap5aO4i9A');
         const stream = () => {
             if (info.livestream) {
-                const format = ytdl.chooseFormat(info.formats, { quality: 'highestaudio', highWaterMark: 1024 * 1024 * 10 /*[128,127,120,96,95,94,93]*/ });
+                const format = ytdl.chooseFormat(info.formats, { quality: 'highestaudio', highWaterMark: 1024 * 1024 * 10 }); //[128,127,120,96,95,94,93]
                 return format.url;
             } else return ytdl.downloadFromInfo(info, { type: 'opus' });
         }
@@ -446,42 +426,66 @@ function playMusic(){
         console.error(e);
     });
 }
+*/
 
-/*
 
-function joinVoiceChannel (voiceChannel) {
+
+async function joinVoiceChannel () {
+    const voiceChannel = client.channels.cache.get(musicChannelID);
     console.log(`Joining voice channel: ${voiceChannel.name}`);
-
-    voiceChannel.join();
+    connection = await voiceChannel.join();
 }
 
-function leaveVoiceChannel (voiceChannel) {
+function leaveVoiceChannel () {
+    const voiceChannel = client.channels.cache.get(musicChannelID);
     console.log(`Leaving voice channel: ${voiceChannel.name}`);
-
     voiceChannel.leave();
 }
 
-function playMusic (connection) {
+async function playMusic (connection) {
+
+    const info = await ytdl.getInfo('https://www.youtube.com/watch?v=5qap5aO4i9A');
+    const stream = () => {
+        if (info.livestream) {
+            const format = ytdl.chooseFormat(info.formats, { quality: 'highestaudio', highWaterMark: 1024 * 1024 * 10 }); // [128,127,120,96,95,94,93]
+            return format.url;
+        } else return ytdl.downloadFromInfo(info, { type: 'opus' });
+    }
+
+    var dispatcher = await connection.play(stream());
     console.log("Playing music...");
 
-    connection.play(stream());
+    /*
+    dispatcher.on('finish', () => {
+        console.log('Song has finished playing');
+        dispatcher = connection.play(stream());
+    });
+
+    dispatcher.on('error', () => {
+        console.error;
+        setTimeout( () => { 
+            connection.play(stream()) 
+        }, 1000);
+    });
+    */
 }
 
 function stopMusic (connection) {
     console.log("Stopping music...");
 
-    connection.stop();
+    connection.play();
 }
 
-*/
 
 /**
  * Stop Hawking from playing music.
  */
+/*
 function stopMusic () {
     const voiceChannel = client.channels.cache.get(musicChannelID);
     voiceChannel.leave();
 }
+*/
 
 /**
  * Sends a DM to a user reminding them to mute and chill
@@ -515,7 +519,8 @@ async function eventUpdateLoop(){
         if(eventDateTime.isSame(now, 'date')){
 
             // Check if time now is after 1 hour before the event
-            if(now.isAfter(eventDateTime.subtract(1, 'hours')) && !now.isAfter(eventDateTime.subtract(30, 'minutes'))){
+            // if(now.isAfter(eventDateTime.subtract(1, 'hours')) && ! now.isAfter(eventDateTime.subtract(30, 'minutes'))){
+            if(now.isBetween(eventDateTime.subtract({minutes: 60}), eventDateTime.subtract({minutes: 30}))){
 
                 console.log(`Sending announcement about: ${event.title}`);
 
