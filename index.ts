@@ -215,10 +215,10 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
     const user = newState.member;
     const userID = user.user.id;
 
-    if ( !user.bot ) {
+    if ( newState.channel.members.keyArray().length >= 2 ) {
         if ( oldUserChannelID !== musicChannelID && newUserChannelID === musicChannelID ) {
 
-            playMusic(connection);
+            if ( newState.channel.members.keyArray().length == 2 ) { playMusic(connection); }
 
             console.log(`   ${user.displayName} (${userID}) has joined the music channel`);
             try {
@@ -245,18 +245,7 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
                 stopMusic(connection);
             }
         }
-    } else {
-
-        // If Hawking leaves the voice channel
-        if ( oldUserChannelID === musicChannelID && newUserChannelID !== musicChannelID && user.bot ) {
-            
-            console.log(`Re-joining voice channel: ${voiceChannel.name}`);
-            connection = voiceChannel.join();
-        }
-    }
-
-    
-
+    } 
 });
 
 /**
@@ -473,7 +462,8 @@ async function playMusic (connection) {
 function stopMusic (connection) {
     console.log("Stopping music...");
 
-    connection.play();
+    leaveVoiceChannel();
+    joinVoiceChannel();
 }
 
 
@@ -503,12 +493,10 @@ function sendWelcomeMessage (member) {
 async function eventUpdateLoop(){
 
     // Make Hawking stay in the music channel forever
-    /*
-    if (client.guild.voice === undefined) {
-        const voiceChannel = client.channels.cache.get(musicChannelID);
-        voiceChannel.join();
+    const voiceChannel = client.channels.cache.get(musicChannelID);
+    if ( voiceChannel.members.keyArray().length == 0 ) {
+        joinVoiceChannel();
     }
-    */
 
     const now = moment();
     const eventsList = await Events.findAll({ order: [['date', 'DESC']] });
