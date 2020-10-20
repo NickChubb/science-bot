@@ -215,8 +215,9 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
     const user = newState.member;
     const userID = user.user.id;
 
-    if ( newState.channel.members.keyArray().length >= 2 ) {
-        if ( oldUserChannelID !== musicChannelID && newUserChannelID === musicChannelID ) {
+    if ( oldUserChannelID !== musicChannelID && newUserChannelID === musicChannelID ) {
+
+        if ( newState.channel.members.keyArray().length >= 2 ) {
 
             if ( newState.channel.members.keyArray().length == 2 ) { playMusic(connection); }
 
@@ -226,26 +227,26 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
                 const newUser = await MusicUsers.create({
                     user: userID
                 });
-
+                
                 // User's ID is added to DB successfully
                 console.log(`    -> It's ${user.displayName}'s first time joining!`);
-
                 sendWelcomeMessage(user);
 
             } catch {
                 //User's ID is already in DB
                 console.log(`    -> It's not ${user.displayName}'s first time joining!`);
             }
+        } 
+    } else if ( oldUserChannelID === musicChannelID && newUserChannelID !== musicChannelID ) {
 
-        } else if ( oldUserChannelID === musicChannelID && newUserChannelID !== musicChannelID ) {
-
+        if (oldState.channel.members.keyArray().length != 0) {
             console.log(`${newState.member.displayName} has left the music channel`);
-
-            if (oldState.channel.members.find(user => !user.bot)) {
-                stopMusic(connection);
-            }
         }
-    } 
+        if (oldState.channel.members.keyArray().length == 1) {
+            stopMusic(connection);
+        }
+        
+    }
 });
 
 /**
@@ -423,6 +424,7 @@ async function joinVoiceChannel () {
     const voiceChannel = client.channels.cache.get(musicChannelID);
     console.log(`Joining voice channel: ${voiceChannel.name}`);
     connection = await voiceChannel.join();
+    console.log('Connection: ' + connection.channel.name);
 }
 
 function leaveVoiceChannel () {
@@ -433,15 +435,16 @@ function leaveVoiceChannel () {
 
 async function playMusic (connection) {
 
-    const info = await ytdl.getInfo('https://www.youtube.com/watch?v=5qap5aO4i9A');
-    const stream = () => {
+    const streamLink = await ytdl.getInfo('https://www.youtube.com/watch?v=5qap5aO4i9A');
+    const errorLink = await ytdl.getInfo('https://www.youtube.com/watch?v=5qap5aO4i9A');
+    const stream = (info) => {
         if (info.livestream) {
             const format = ytdl.chooseFormat(info.formats, { quality: 'highestaudio', highWaterMark: 1024 * 1024 * 10 }); // [128,127,120,96,95,94,93]
             return format.url;
         } else return ytdl.downloadFromInfo(info, { type: 'opus' });
     }
 
-    var dispatcher = await connection.play(stream());
+    var dispatcher = await connection.play(stream(streamLink));
     console.log("Playing music...");
 
     /*
@@ -449,21 +452,23 @@ async function playMusic (connection) {
         console.log('Song has finished playing');
         dispatcher = connection.play(stream());
     });
-
+    */
     dispatcher.on('error', () => {
         console.error;
+        dispatcher = connection.play(stream(errorLink));
         setTimeout( () => { 
-            connection.play(stream()) 
-        }, 1000);
+            dispatcher = connection.play(stream(streamLink));
+        }, 30000);
     });
-    */
+    
 }
 
 function stopMusic (connection) {
     console.log("Stopping music...");
-
     leaveVoiceChannel();
-    joinVoiceChannel();
+    setTimeout( () => {
+        joinVoiceChannel();
+    }, 2000);
 }
 
 
