@@ -135,6 +135,7 @@ client.on('message', async message => {
                 const delID = args[0];
                 const rowCount = await Events.destroy({ where: { id: delID } });
                 if   (!rowCount) return message.reply('```diff\n- ERROR: That event does not exist.\n```');
+                updateCalendar();
                 return message.reply('```diff\n+ Event deleted successfully\n```');
 
             } else {
@@ -270,11 +271,12 @@ async function createCalendar(channel){
 function updateCalendar() {
     
     console.log("Calendar updating");
-    
     const eventsChannel = client.channels.cache.get(eventsChannelID);
 
     // Delete all the messages in the channel
     eventsChannel.bulkDelete(100);
+    // Generate calendar image
+    eventsChannel.send("", {files: ["https://nickchubb.ca/sus/sus_event_calendar.png"]})
     // Create new calendar of messages
     createCalendar(eventsChannel);
 }
