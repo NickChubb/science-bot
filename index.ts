@@ -257,10 +257,20 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
  */
 async function createCalendar(channel){
 
+    // Generate calendar image
+    channel.send("", {files: ["https://nickchubb.ca/sus/sus_event_calendar.png"]})
+
     const eventsList = await Events.findAll({ order: [['date', 'DESC']] });
+    var sentBanner: Boolean = false;
 
     eventsList.forEach(event => {
         const eventEmbed = createEventEmbed(event.dataValues);
+
+        if (event.dataValues.date.isSame(moment(), 'date') && !sentBanner) {
+            channel.send("", {files: ["https://nickchubb.ca/sus/sus_today_banner.png"]});
+            sentBanner = true;
+        }
+
         channel.send(eventEmbed);
     });
 }
@@ -275,8 +285,6 @@ function updateCalendar() {
 
     // Delete all the messages in the channel
     eventsChannel.bulkDelete(100);
-    // Generate calendar image
-    eventsChannel.send("", {files: ["https://nickchubb.ca/sus/sus_event_calendar.png"]})
     // Create new calendar of messages
     createCalendar(eventsChannel);
 }
