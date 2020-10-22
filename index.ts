@@ -80,6 +80,8 @@ client.once('ready', async () => {
 
         joinVoiceChannel();
     }
+
+    updateCalendar();
 });
 
 /**
@@ -257,15 +259,16 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
  */
 async function createCalendar(channel){
 
+    const eventsList = await Events.findAll({ order: [['date', 'DESC']] });
+    var sentBanner = false;
+
     // Generate calendar image
     channel.send("", {files: ["https://nickchubb.ca/sus/sus_event_calendar.png"]})
-
-    const eventsList = await Events.findAll({ order: [['date', 'DESC']] });
-    var sentBanner: Boolean = false;
 
     eventsList.forEach(event => {
         const eventEmbed = createEventEmbed(event.dataValues);
 
+        // Generate today banner if not sent already and event is today
         if (event.dataValues.date.isSame(moment(), 'date') && !sentBanner) {
             channel.send("", {files: ["https://nickchubb.ca/sus/sus_today_banner.png"]});
             sentBanner = true;
