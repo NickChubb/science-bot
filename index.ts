@@ -270,7 +270,7 @@ async function createCalendar(channel){
 
         // Generate today banner if not sent already and event is today
         if (event.dataValues.date.isSame(moment(), 'date') && !sentBanner) {
-            channel.send("", {files: ["https://nickchubb.ca/sus/sus_today_banner.png"]});
+            //channel.send("", {files: ["https://nickchubb.ca/sus/sus_today_banner.png"]});
             sentBanner = true;
         }
 
