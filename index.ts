@@ -335,6 +335,8 @@ function createEventEmbed(event){
         thumbnailUrl += 'psa.png';
     } else if (event.title.includes("Chemistry Student Society") || event.title.includes("CSS")) {
         thumbnailUrl += 'css.png';
+    } else if (event.title.includes("Simon Fraser Student Society") || event.title.includes("SFSS")) {
+        thumbnailUrl += 'sfss.png';
     } else {
         thumbnailUrl += 'sus.png';
     }
@@ -528,13 +530,15 @@ async function eventUpdateLoop(){
             console.log(`Time (now): ${now}, eventDateTime: ${eventDateTime}, eventDateTime - 30 mins: ${eventDateTime.subtract({minutes: 30})}`);
 
             // Check if time now is after 1 hour before the event
-            // if(now.isAfter(eventDateTime.subtract(1, 'hours')) && ! now.isAfter(eventDateTime.subtract(30, 'minutes'))){
-            if(now.isBetween(eventDateTime.subtract({minutes: 60}), eventDateTime.subtract({minutes: 30}))){
+            if(now.isAfter(eventDateTime.subtract(1, 'hours'))){
+                //if(now.isBetween(eventDateTime.subtract({minutes: 60}), eventDateTime.subtract({minutes: 30}))){
 
-                console.log(`Sending announcement about: ${event.title}`);
+                if(now.isBefore(eventDateTime.subtract({minutes: 30}))) {
+                    console.log(`Sending announcement about: ${event.title}`);
 
-                // Alert to notifications channel
-                sendAnnouncement(event);
+                    // Alert to notifications channel
+                    sendAnnouncement(event);
+                }
             }
         }
     });
