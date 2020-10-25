@@ -259,9 +259,6 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
  */
 async function createCalendar(channel){
 
-    // Generate calendar image
-    channel.send("", {files: ["https://nickchubb.ca/sus/sus_event_calendar.png"]})
-
     const eventsList = await Events.findAll({ order: [['date', 'DESC']] });
     var sentBanner = false;
 
@@ -288,6 +285,8 @@ function updateCalendar() {
 
     // Delete all the messages in the channel
     eventsChannel.bulkDelete(100);
+    // Generate calendar image
+    eventsChannel.send("", {files: ["https://nickchubb.ca/sus/sus_event_calendar.png"]})
     // Create new calendar of messages
     createCalendar(eventsChannel);
 }
