@@ -121,7 +121,7 @@ client.on('message', async message => {
                     URL: eventURL,
                 });
             
-                message.reply('```diff\n+ Event Added to Calendar: ' + args.join('\n+ ') + ' with id: ' + newEvent.id + '\n```');
+                message.reply('```diff\n+ Event Added to Calendar:\n+ ' + args.join('\n+ ') + ' with id: ' + newEvent.id + '\n```');
                 updateCalendar();
 
             } else {
@@ -335,7 +335,7 @@ function createEventEmbed(event){
         thumbnailUrl += 'psa.png';
     } else if (event.title.includes("Chemistry Student Society") || event.title.includes("CSS")) {
         thumbnailUrl += 'css.png';
-    } else if (event.title.startsWith("Simon Fraser Student Society") || event.title.startsWith("SFSS") || event.description.includes("SFSS")) {
+    } else if (event.title.includes("Simon Fraser Student Society") || event.title.includes("SFSS")) {
         thumbnailUrl += 'sfss.png';
     } else {
         thumbnailUrl += 'sus.png';
@@ -344,7 +344,7 @@ function createEventEmbed(event){
     const eventEmbed = new Discord.MessageEmbed()
 	.setColor(embedColour)
 	.setTitle(event.title)
-	.setURL('https://discord.js.org/')
+	.setURL(event.URL)
     .setDescription(event.description)
     .attachFiles(['src/sus.png'])
 	.setThumbnail('attachment://sus.png')
