@@ -121,7 +121,7 @@ client.on('message', async message => {
                     URL: eventURL,
                 });
             
-                message.reply('```diff\n+ Event Added to Calendar: ' + args.join(', ') + ' with id: ' + newEvent.id + '\n```');
+                message.reply('```diff\n+ Event Added to Calendar: ' + args.join('\n+ ') + ' with id: ' + newEvent.id + '\n```');
                 updateCalendar();
 
             } else {
@@ -335,7 +335,7 @@ function createEventEmbed(event){
         thumbnailUrl += 'psa.png';
     } else if (event.title.includes("Chemistry Student Society") || event.title.includes("CSS")) {
         thumbnailUrl += 'css.png';
-    } else if (event.title.includes("Simon Fraser Student Society") || event.title.includes("SFSS")) {
+    } else if (event.title.includes("Simon Fraser Student Society") || event.title.includes("SFSS") || event.description.includes("SFSS")) {
         thumbnailUrl += 'sfss.png';
     } else {
         thumbnailUrl += 'sus.png';
