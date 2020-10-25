@@ -178,7 +178,7 @@ client.on('message', async message => {
             var raffleMembers = []; 
 
             voiceChannelMembers.forEach(member => {
-                if (!raffleWinners.includes(member) && !member.roles.cache.find(r => r.name === "exec-sus")) {
+                if (!raffleWinners.includes(member) && !member.roles.cache.find(r => r.name === "SUS Executive")) {
                     raffleMembers.push(member);
                 }
             });
@@ -259,11 +259,11 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
  */
 async function createCalendar(channel){
 
-    const eventsList = await Events.findAll({ order: [['date', 'DESC']] });
-    var sentBanner = false;
-
     // Generate calendar image
     channel.send("", {files: ["https://nickchubb.ca/sus/sus_event_calendar.png"]})
+
+    const eventsList = await Events.findAll({ order: [['date', 'DESC']] });
+    var sentBanner = false;
 
     eventsList.forEach(event => {
         const eventEmbed = createEventEmbed(event.dataValues);
