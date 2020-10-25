@@ -125,7 +125,7 @@ client.on('message', async message => {
                 updateCalendar();
 
             } else {
-                message.reply('```diff\n- ERROR: Incorrect number of arguements.\n\n- +add "<title>" "<description>" "<location>" <date (YYYY-MM-DD)> <start_time> <end_time> <URL>```'); //Red text
+                message.reply('```diff\n- ERROR: Incorrect number of arguements.\n\n- +add "<title>" "<description>" "<location>" <date (YYYY-MM-DD)> <start_time> <end_time> <URL>\n\n- Remember to put quotation marks around the title and description.```'); //Red text
             }
 
             break;
@@ -344,7 +344,7 @@ function createEventEmbed(event){
     const eventEmbed = new Discord.MessageEmbed()
 	.setColor(embedColour)
 	.setTitle(event.title)
-	.setURL(event.URL)
+	//.setURL(event.URL)
     .setDescription(event.description)
     .attachFiles(['src/sus.png'])
 	.setThumbnail('attachment://sus.png')
