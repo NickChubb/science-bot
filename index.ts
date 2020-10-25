@@ -286,9 +286,11 @@ function updateCalendar() {
     // Delete all the messages in the channel
     eventsChannel.bulkDelete(100);
     // Generate calendar image
-    eventsChannel.send("", {files: ["https://nickchubb.ca/sus/sus_event_calendar.png"]})
+    eventsChannel.send("", {files: ["https://nickchubb.ca/sus/sus_event_calendar.png"]});
     // Create new calendar of messages
-    createCalendar(eventsChannel);
+    setTimeout(() => {
+        createCalendar(eventsChannel);
+    }, 1000);
 }
 
 /**
