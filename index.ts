@@ -354,7 +354,8 @@ function createEventEmbed(event){
         //{ name: '\u200B', value: '\u200B', inline: true},
 		{ name: 'Start Time \u200b \u200b \u200b \u200b \u200b \u200b', value: event.startTime , inline: true },
 		{ name: 'End Time \u200b \u200b \u200b \u200b \u200b \u200b', value: event.endTime, inline: true },
-	)
+    )
+    .setFooter(event.id.toString());
 
     return eventEmbed;
     
@@ -389,53 +390,6 @@ function sendAnnouncement(event){
     console.log("Sent announcement.");
 }
 
-/**
- * Make Hawking play music.
- * 
- * Links:
- *  https://github.com/fent/node-ytdl-core/issues/399
- */
-/*
-function playMusic(){
-
-    const voiceChannel = client.channels.cache.get(musicChannelID);
-
-    voiceChannel.join().then(async connection  => {
-
-        connection.voice.setSelfDeaf(true);
-        console.log("Successfully connected to voice channel.");
-
-        const info = await ytdl.getInfo('https://www.youtube.com/watch?v=5qap5aO4i9A');
-        const stream = () => {
-            if (info.livestream) {
-                const format = ytdl.chooseFormat(info.formats, { quality: 'highestaudio', highWaterMark: 1024 * 1024 * 10 }); //[128,127,120,96,95,94,93]
-                return format.url;
-            } else return ytdl.downloadFromInfo(info, { type: 'opus' });
-        }
-
-        var dispatcher = connection.play(stream());
-        console.log("Playing music...");
-
-        dispatcher.on('finish', () => {
-            console.log('Song has finished playing');
-            dispatcher = connection.play(stream());
-        });
-
-        dispatcher.on('error', () => {
-            console.error;
-            setTimeout( () => { 
-                connection.play(stream()) 
-            }, 1000);
-        });
-
-    }).catch(e => {
-        console.error(e);
-    });
-}
-*/
-
-
-
 async function joinVoiceChannel () {
     const voiceChannel = client.channels.cache.get(musicChannelID);
     console.log(`Joining voice channel: ${voiceChannel.name}`);
@@ -463,12 +417,6 @@ async function playMusic (connection) {
     var dispatcher = await connection.play(stream(streamLink));
     console.log("Playing music...");
 
-    /*
-    dispatcher.on('finish', () => {
-        console.log('Song has finished playing');
-        dispatcher = connection.play(stream());
-    });
-    */
     dispatcher.on('error', () => {
         console.error;
         dispatcher = connection.play(stream(errorLink));
@@ -486,17 +434,6 @@ function stopMusic (connection) {
         joinVoiceChannel();
     }, 2000);
 }
-
-
-/**
- * Stop Hawking from playing music.
- */
-/*
-function stopMusic () {
-    const voiceChannel = client.channels.cache.get(musicChannelID);
-    voiceChannel.leave();
-}
-*/
 
 /**
  * Sends a DM to a user reminding them to mute and chill
