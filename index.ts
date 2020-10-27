@@ -354,8 +354,7 @@ function createEventEmbed(event){
         //{ name: '\u200B', value: '\u200B', inline: true},
 		{ name: 'Start Time \u200b \u200b \u200b \u200b \u200b \u200b', value: event.startTime , inline: true },
 		{ name: 'End Time \u200b \u200b \u200b \u200b \u200b \u200b', value: event.endTime, inline: true },
-    )
-    .setFooter(event.id.toString());
+    );
 
     return eventEmbed;
     
