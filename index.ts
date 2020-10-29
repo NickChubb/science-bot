@@ -125,7 +125,10 @@ client.on('message', async message => {
                 updateCalendar();
 
             } else {
-                message.reply('```diff\n- ERROR: Incorrect number of arguements.\n\n- +add "<title>" "<description>" "<location>" <date (YYYY-MM-DD)> <start_time> <end_time> <URL>\n\n- Remember to put quotation marks around the title and description.```'); //Red text
+                message.reply('```diff\n- ERROR: Incorrect number of arguements.'
+                                + '\n\n- +add "<title>" "<description>" "<location>" <date (YYYY-MM-DD)> <start_time> <end_time> <URL>' 
+                                + '\n\n- Remember to put quotation marks around the title, description and location.'
+                                + '\n\n- If location is a text channel in the discord, #channel-name (WITHOUT QUOTES) will link to it.```'); //Red text
             }
 
             break;
@@ -406,6 +409,7 @@ async function playMusic (connection) {
 
     const streamLink = await ytdl.getInfo('https://www.youtube.com/watch?v=5qap5aO4i9A');
     const errorLink = await ytdl.getInfo('https://www.youtube.com/watch?v=5qap5aO4i9A');
+    
     const stream = (info) => {
         if (info.livestream) {
             const format = ytdl.chooseFormat(info.formats, { quality: 'highestaudio', highWaterMark: 1024 * 1024 * 10 }); // [128,127,120,96,95,94,93]
@@ -463,11 +467,11 @@ async function eventUpdateLoop(){
         const eventDateTime = moment(event.date + ' ' + event.startTime, 'YYYY-MM-DD hh:mma');
         if(eventDateTime.isSame(now, 'date')){
 
-            console.log(`Time (now): ${now}, eventDateTime: ${eventDateTime}, eventDateTime - 30 mins: ${eventDateTime.subtract({minutes: 30})}`);
-
             // Check if time now is after 1 hour before the event
             if(now.isAfter(eventDateTime.subtract(1, 'hours'))){
                 //if(now.isBetween(eventDateTime.subtract({minutes: 60}), eventDateTime.subtract({minutes: 30}))){
+
+                console.log(`Time (now): ${now}, eventDateTime: ${eventDateTime}, eventDateTime - 30 mins: ${eventDateTime.subtract({minutes: 30})}`);
 
                 if(now.isBefore(eventDateTime.subtract({minutes: 30}))) {
                     console.log(`Sending announcement about: ${event.title}`);
@@ -482,17 +486,22 @@ async function eventUpdateLoop(){
     if ( !(time.isSame(now, 'date')) ) { // Returns true if not the same day as last time
         console.log("New day! " + time.format("YYYY-MM-DD HH:mma"));
         time = now;
+        var isUpdate = false;
 
         // If any event is now today, update the calendar
         eventsList.forEach(event => {
             if(moment(event.date).isSame(time, 'date')){
-                updateCalendar();
+                isUpdate = true;
             } else if(moment(event.date).isBefore(time, 'date')){
                 // Remove past event from DB
                 Events.destroy({ where: {id: event.id} });
-                updateCalendar();
+                isUpdate = true;
             }
         });
+
+        if ( isUpdate ){
+            updateCalendar();
+        }
 
     }
 }
