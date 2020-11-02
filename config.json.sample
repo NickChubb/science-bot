@@ -1,0 +1,17 @@
+{
+	"prefix": "+",
+    "token": "<bot token goes here>",
+    "eventsChannelID": "<channel_id>",
+    "modCommandsChannelID": "<channel_id>",
+    "announcementsChannelID": "<channel_id>",
+    "musicChannelID": "<channel_id>",
+    "isMusicOn": true,
+    "modRoles": [
+        "Moderator",
+        "Administrator"
+    ],
+    "drawExcludedRoles": [
+        "Moderator",
+        "Administrator"
+    ]
+}

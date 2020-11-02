@@ -13,7 +13,9 @@ const { token,
         modCommandsChannelID, 
         announcementsChannelID,
         musicChannelID,
-        isMusicOn } = require('./config.json');
+        isMusicOn,
+        modRoles,
+        drawExcludedRoles } = require('./config.json');
 
 const client = new Discord.Client();
 var time = moment();
@@ -80,8 +82,6 @@ client.once('ready', async () => {
 
         joinVoiceChannel();
     }
-
-    updateCalendar();
 });
 
 /**
@@ -90,6 +90,11 @@ client.once('ready', async () => {
 client.on('message', async message => {
 
     if (!message.content.startsWith(`${prefix}`)) { return };
+    
+    if (message.member.roles.some(item => modRoles.includes(item))) {
+        message.reply('```diff\n- Sorry, only users with the following roles can use me: ' +  `${modRoles}` + '\n```');
+        return;
+    };
 
     //const modCommandsChannel = await client.channels.cache.get(modCommandsChannelID);
     //if (message.channel != modCommandsChannel) { message.reply('```diff\n- Sorry, I only respond to commands in the mod-commands channel.\n```'); return; };
@@ -149,7 +154,7 @@ client.on('message', async message => {
 
             break;
         }
-        case 'show': {
+        case 'events': {
             // Display a table of all scheduled events.
 
             generateEventsTable(message);
@@ -175,23 +180,32 @@ client.on('message', async message => {
         case 'draw': {
             // Select a random member from the command user's voice channel to win a draw at random.
             // Winners are added to the raffleWinners array which will reset each time the bot restarts.
-            // SUS Execs can't win draws.
+            // Members with roles in drawExcludedRoles can't win draws :(
 
-            const voiceChannelMembers = message.member.voice.channel.members;
-            var raffleMembers = []; 
+            if ( args[0] == 'reset' ) {
 
-            voiceChannelMembers.forEach(member => {
-                if (!raffleWinners.includes(member) && !member.roles.cache.find(r => r.name === "SUS Executive")) {
-                    raffleMembers.push(member);
-                }
-            });
+                raffleWinners = [];
+                const voiceChannel = message.member.voice.channel;
+                message.channel.send(`A new raffle is starting!  🎉  Join ${voiceChannel.name} for a chance to win!!`);
 
-            const winningMember = raffleMembers[Math.floor(Math.random() * raffleMembers.length)];
-            message.channel.send(`The winner of the draw is ${winningMember}!!  🎉  Check your DMs!`);
-            raffleWinners.push(winningMember);
+            } else {
 
-            raffleMembers = [];
-            break;
+                const voiceChannelMembers = message.member.voice.channel.members;
+                var raffleMembers = []; 
+    
+                voiceChannelMembers.forEach(member => {
+                    if (!raffleWinners.includes(member) && !member.roles.cache.find(r => !drawExcludedRoles.includes(r.name))) {
+                        raffleMembers.push(member);
+                    }
+                });
+    
+                const winningMember = raffleMembers[Math.floor(Math.random() * raffleMembers.length)];
+                message.channel.send(`The winner of the draw is ${winningMember}!!  🎉  Check your DMs!`);
+                raffleWinners.push(winningMember);
+    
+                raffleMembers = [];
+                break;
+            }
         }
         case 'test': {
             // Test case.
