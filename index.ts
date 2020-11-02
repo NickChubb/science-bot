@@ -91,7 +91,7 @@ client.on('message', async message => {
 
     if (!message.content.startsWith(`${prefix}`)) { return };
     
-    if (message.member.roles.find(item => modRoles.includes(item))) {
+    if (message.member.roles.cache.find(item => modRoles.includes(item))) {
         message.reply('```diff\n- Sorry, only users with the following roles can use me: ' +  `${modRoles}` + '\n```');
         return;
     };
