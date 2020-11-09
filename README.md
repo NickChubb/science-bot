@@ -36,6 +36,10 @@ drawExcludedRoles are roles that are excluded from winning draws.
     
     Adds a new event to the Event Calendar Database.  Title, Description, and Location must have quotation marks around the arguments if they are more than one word long.  Location may refer to a text on the current Discord channel and will create a link to it as long as it doesn't have quotation marks around it.
     
+    start_time and end_time should be formatted in 12 hour standard such as XX:XXpm or XX:XXam, with no space between the numbers and the period (am/pm).  
+    
+    There should be no quotation marks around date, times, or the URL.  
+    
 - **+del** <event_id>
 
     Deletes event with specified id from event calendar database.
