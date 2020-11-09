@@ -91,8 +91,8 @@ client.on('message', async message => {
 
     if (!message.content.startsWith(`${prefix}`)) { return };
 
-    console.log(message.member.roles.cache.map(r => modRoles.indexOf(r)));
-    if (message.member.roles.cache.some(item => modRoles.indexOf(item) !== -1)) {
+    console.log(message.member.roles.cache.map(r => modRoles.indexOf(r.toString())));
+    if (message.member.roles.cache.some(item => modRoles.indexOf(item.toString()) !== -1)) {
         message.reply('```diff\n- Sorry, only users with the following roles can use me: ' +  `${modRoles}` + '\n```');
         return;
     };
