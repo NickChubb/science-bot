@@ -91,7 +91,7 @@ client.on('message', async message => {
 
     if (!message.content.startsWith(`${prefix}`)) { return };
     
-    if (message.member.roles.cache.find(item => modRoles.includes(item))) {
+    if (message.member.roles.cache.some(item => modRoles.includes(item))) {
         message.reply('```diff\n- Sorry, only users with the following roles can use me: ' +  `${modRoles}` + '\n```');
         return;
     };
@@ -184,17 +184,21 @@ client.on('message', async message => {
 
             if ( args[0] == 'reset' ) {
 
+                console.log('👉 RESETTING RAFFLE');
+
                 raffleWinners = [];
                 const voiceChannel = message.member.voice.channel;
                 message.channel.send(`A new raffle is starting!  🎉  Join ${voiceChannel.name} for a chance to win!!`);
 
             } else {
 
+                console.log('👉 INITIATING DRAW');
+
                 const voiceChannelMembers = message.member.voice.channel.members;
                 var raffleMembers = []; 
     
                 voiceChannelMembers.forEach(member => {
-                    if (!raffleWinners.includes(member) && !member.roles.cache.find(r => !drawExcludedRoles.includes(r.name))) {
+                    if (!raffleWinners.includes(member) && !member.roles.cache.some(r => !drawExcludedRoles.includes(r.name))) {
                         raffleMembers.push(member);
                     }
                 });
@@ -204,8 +208,11 @@ client.on('message', async message => {
                 raffleWinners.push(winningMember);
     
                 raffleMembers = [];
-                break;
             }
+            break;
+        }
+        case 'help': {
+            break;
         }
         case 'test': {
             // Test case.
