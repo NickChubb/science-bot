@@ -198,7 +198,7 @@ client.on('message', async message => {
                 var raffleMembers = []; 
     
                 voiceChannelMembers.forEach(member => {
-                    if (!raffleWinners.includes(member) && !member.roles.cache.find(r => !drawExcludedRoles.includes(r.name))) {
+                    if (!raffleWinners.includes(member) && !member.roles.cache.some(r => !drawExcludedRoles.includes(r.name))) {
                         raffleMembers.push(member);
                     }
                 });
@@ -208,11 +208,11 @@ client.on('message', async message => {
                 raffleWinners.push(winningMember);
     
                 raffleMembers = [];
-                break;
             }
+            break;
         }
         case 'help': {
-            
+            break;
         }
         case 'test': {
             // Test case.
