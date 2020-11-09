@@ -91,7 +91,7 @@ client.on('message', async message => {
 
     if (!message.content.startsWith(`${prefix}`)) { return };
     
-    if (message.member.roles.cache.includes(item => modRoles.includes(item))) {
+    if (message.member.roles.cache.some(item => !modRoles.includes(item))) {
         message.reply('```diff\n- Sorry, only users with the following roles can use me: ' +  `${modRoles}` + '\n```');
         return;
     };
@@ -211,7 +211,6 @@ client.on('message', async message => {
                     message.channel.send(`The winner of the draw is ${winningMember}!!  🎉  Check your DMs!`);
                     raffleWinners.push(winningMember);
                 }
-
                 raffleMembers = [];
             }
             break;
