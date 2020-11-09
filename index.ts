@@ -90,7 +90,8 @@ client.once('ready', async () => {
 client.on('message', async message => {
 
     if (!message.content.startsWith(`${prefix}`)) { return };
-    
+
+    console.log(message.member.roles.cache);
     if (message.member.roles.cache.some(item => modRoles.indexOf(item) !== -1)) {
         message.reply('```diff\n- Sorry, only users with the following roles can use me: ' +  `${modRoles}` + '\n```');
         return;
@@ -198,7 +199,7 @@ client.on('message', async message => {
                 var raffleMembers = []; 
     
                 voiceChannelMembers.forEach(member => {
-                    if (!raffleWinners.includes(member) && !member.roles.cache.some(r => !drawExcludedRoles.includes(r.name))) {
+                    if (!raffleWinners.includes(member) && !member.roles.cache.some(r => drawExcludedRoles.indexOf(r.name) !== -1)) {
                         raffleMembers.push(member);
                     }
                 });
