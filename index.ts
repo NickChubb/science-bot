@@ -91,7 +91,7 @@ client.on('message', async message => {
 
     if (!message.content.startsWith(`${prefix}`)) { return };
     
-    if (message.member.roles.cache.some(item => modRoles.includes(item))) {
+    if (message.member.roles.cache.includes(item => modRoles.includes(item))) {
         message.reply('```diff\n- Sorry, only users with the following roles can use me: ' +  `${modRoles}` + '\n```');
         return;
     };
@@ -202,11 +202,16 @@ client.on('message', async message => {
                         raffleMembers.push(member);
                     }
                 });
-    
-                const winningMember = raffleMembers[Math.floor(Math.random() * raffleMembers.length)];
-                message.channel.send(`The winner of the draw is ${winningMember}!!  🎉  Check your DMs!`);
-                raffleWinners.push(winningMember);
-    
+                
+                if (raffleMembers.length == 0) {
+                    message.channel.send(`There are no more eligible raffle winners 😔`);
+                } else {
+                    const winningIndex = Math.floor(Math.random() * raffleMembers.length);
+                    const winningMember = raffleMembers[winningIndex];
+                    message.channel.send(`The winner of the draw is ${winningMember}!!  🎉  Check your DMs!`);
+                    raffleWinners.push(winningMember);
+                }
+
                 raffleMembers = [];
             }
             break;
