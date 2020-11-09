@@ -93,8 +93,8 @@ client.on('message', async message => {
 
     console.log(modRoles);
     console.log(message.member.roles.cache);
-    console.log(message.member.roles.cache.map(r => modRoles.indexOf(r.toString())));
-    if (message.member.roles.cache.some(item => modRoles.indexOf(item) !== -1)) {
+    console.log(message.member.roles.cache.map(r => modRoles.indexOf(r.name)));
+    if (message.member.roles.cache.some(item => modRoles.indexOf(item.name) !== -1)) {
         message.reply('```diff\n- Sorry, only users with the following roles can use me: ' +  `${modRoles}` + '\n```');
         return;
     };
