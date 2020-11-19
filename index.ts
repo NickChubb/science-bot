@@ -17,6 +17,7 @@ const { token,
         modRoles,
         drawExcludedRoles } = require('./config.json');
 
+const lib = require('lib')({token: 'tok_dev_Yencymh8ZRb51EgqvQ8C8bCik8w5s1FHzMuPHkzjbVqgPnkb1mZBeLCT31kf3ruR'});
 const client = new Discord.Client();
 var time = moment();
 var connection;
@@ -92,7 +93,7 @@ client.on('message', async message => {
     if (!message.content.startsWith(`${prefix}`)) { return };
 
     if (!message.member.roles.cache.some(item => modRoles.indexOf(item.name) !== -1)) {
-        message.reply('```diff\n- Sorry, only users with the following roles can use me: ' +  `${modRoles}` + '\n```');
+        message.reply('```diff\n- Sorry, only users with at least one of the following roles can use me: ' +  `${modRoles.join(', ')}` + '\n```');
         return;
     };
 
@@ -213,6 +214,13 @@ client.on('message', async message => {
                 }
                 raffleMembers = [];
             }
+            break;
+        }
+        case 'gif': {
+            
+            const query: String = args.join(" ");
+            const gif = getGif(query);
+            message.reply(gif);
             break;
         }
         case 'help': {
@@ -386,6 +394,17 @@ function createEventEmbed(event){
 
     return eventEmbed;
     
+}
+
+async function getGif(query: String) {
+
+    // make API request
+    let result = await lib.giphy.search['@0.0.9'].gifs({
+        query: query,
+        rating: `pg-13`
+    });
+
+    return result;
 }
 
 /**
