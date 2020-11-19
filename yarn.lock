@@ -599,6 +599,11 @@ jsprim@^1.2.2:
     json-schema "0.2.3"
     verror "1.10.0"
 
+lib@^4.3.0:
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/lib/-/lib-4.3.0.tgz#efe87a5cf02640e2c4153b54b420076619b3adbb"
+  integrity sha512-1UtjFNb8MJzJNcIffffOJQPjAaCX8wJALpfvKBQmeWWDG39C9m9ikv0BIniLcXB8izWeOY7hmrjQqbFL4AHoTw==
+
 list-it@^1.3.3:
   version "1.3.5"
   resolved "https://registry.yarnpkg.com/list-it/-/list-it-1.3.5.tgz#b8f515c2ce9c5d924d5b572e34b03cc79d038fb3"
