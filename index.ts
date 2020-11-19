@@ -432,7 +432,7 @@ async function getGif(query) {
 
     const gif = new Discord.MessageEmbed()
                             .setColor('#0099ff')
-                            .setImage(result[0]['images']['original']['url']);
+                            .setImage(result[Math.floor(Math.random() * result.length)]['images']['original']['url']);
 
     return gif;
 }
