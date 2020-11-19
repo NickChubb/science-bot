@@ -17,7 +17,11 @@ A multi-purpose Discord bot.
 3) **Randomized Draws**
 
     Draw events can be initiated to select a winner at random for giveaways.
-    
+
+5) **Gifs!**
+
+    Hawking responds with a randomized gif based on a search query!  Uses the [GIPHY](https://giphy.com/) SDK to search and return gifs.
+
 4) **More**
 
     More features are being added as they are needed!
@@ -59,6 +63,10 @@ drawExcludedRoles are roles that are excluded from winning draws.
 - **+draw reset**
 
     Reset the current draw winners.  Use this command to initialize a new raffle.
+    
+- **+gif** < query >
+
+    Responds with a randomized gif based on the search query.  Queries can be multiple words long and should not be wrapped in quotation marks.
     
 ## About
 
