@@ -18,9 +18,9 @@ A multi-purpose Discord bot.
 
     Draw events can be initiated to select a winner at random for giveaways.
 
-5) **Gifs!
+5) **Gifs!**
 
-    Hawking responds with a randomized gif based on a search query!
+    Hawking responds with a randomized gif based on a search query!  Uses the [GIPHY](https://giphy.com/) SDK to search and return gifs.
 
 4) **More**
 
