@@ -64,7 +64,7 @@ drawExcludedRoles are roles that are excluded from winning draws.
 
     Reset the current draw winners.  Use this command to initialize a new raffle.
     
-- **+gif** <query>
+- **+gif** < query >
 
     Responds with a randomized gif based on the search query.  Queries can be multiple words long and should not be wrapped in quotation marks.
     
