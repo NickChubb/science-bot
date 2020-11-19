@@ -64,6 +64,17 @@ const MusicUsers = sequelize.define('musicUsers', {
     }
 });
 
+function isModerator(message) {
+    if (!message.member.roles.cache.some(item => modRoles.indexOf(item.name) !== -1)) {
+
+        message.reply('```diff\n- Sorry, only users with at least one of the following roles can use this command: ' +  `${modRoles.join(', ')}` + '\n```');
+        return false;
+        
+    } else {
+        return true;
+    }
+}
+
 // Runs the body once the client is connected to the server and ready
 client.once('ready', async () => {
     console.log('Ready!');
@@ -92,10 +103,10 @@ client.on('message', async message => {
 
     if (!message.content.startsWith(`${prefix}`)) { return };
 
-    if (!message.member.roles.cache.some(item => modRoles.indexOf(item.name) !== -1)) {
-        message.reply('```diff\n- Sorry, only users with at least one of the following roles can use me: ' +  `${modRoles.join(', ')}` + '\n```');
-        return;
-    };
+    // if (!message.member.roles.cache.some(item => modRoles.indexOf(item.name) !== -1)) {
+    //     message.reply('```diff\n- Sorry, only users with at least one of the following roles can use me: ' +  `${modRoles.join(', ')}` + '\n```');
+    //     return;
+    // };
 
     //const modCommandsChannel = await client.channels.cache.get(modCommandsChannelID);
     //if (message.channel != modCommandsChannel) { message.reply('```diff\n- Sorry, I only respond to commands in the mod-commands channel.\n```'); return; };
@@ -106,6 +117,8 @@ client.on('message', async message => {
 
     switch (command) {
         case 'add': {
+
+            if (!isModerator(message)) { return }
 
             if (args.length == 7) {
 
@@ -141,6 +154,8 @@ client.on('message', async message => {
         } 
         case 'del': {
 
+            if (!isModerator(message)) { return }
+
             if (args.length == 1) {
 
                 const delID = args[0];
@@ -158,11 +173,15 @@ client.on('message', async message => {
         case 'events': {
             // Display a table of all scheduled events.
 
+            if (!isModerator(message)) { return }
+
             generateEventsTable(message);
             break;
         } 
         case 'music': {
             // Hawking's Music control commands.
+
+            if (!isModerator(message)) { return }
 
             const arg = args[0];
             switch (arg) {
@@ -182,6 +201,8 @@ client.on('message', async message => {
             // Select a random member from the command user's voice channel to win a draw at random.
             // Winners are added to the raffleWinners array which will reset each time the bot restarts.
             // Members with roles in drawExcludedRoles can't win draws :(
+
+            if (!isModerator(message)) { return }
 
             if ( args[0] == 'reset' ) {
 
@@ -224,10 +245,15 @@ client.on('message', async message => {
             break;
         }
         case 'help': {
+
+            if (!isModerator(message)) { return }
+
             break;
         }
         case 'test': {
             // Test case.
+
+            if (!isModerator(message)) { return }
 
             const eventsList = await Events.findAll({ order: [['date', 'DESC']] });
             const event1 = eventsList[1];
