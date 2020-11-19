@@ -246,8 +246,7 @@ client.on('message', async message => {
         }
         case 'help': {
 
-            if (!isModerator(message)) { return }
-
+            message.reply('For more info and commands, check out => https://github.com/NickChubb/science-bot/blob/master/README.md');
             break;
         }
         case 'test': {
