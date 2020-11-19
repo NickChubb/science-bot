@@ -218,9 +218,9 @@ client.on('message', async message => {
         }
         case 'gif': {
             
-            const query: String = args.join(" ");
-            const gif = getGif(query);
-            message.reply(gif);
+            const query = args.join(" ");
+            const gif = await getGif(query);
+            message.channel.send(gif);
             break;
         }
         case 'help': {
@@ -396,7 +396,7 @@ function createEventEmbed(event){
     
 }
 
-async function getGif(query: String) {
+async function getGif(query) {
 
     // make API request
     let result = await lib.giphy.search['@0.0.9'].gifs({
@@ -404,7 +404,11 @@ async function getGif(query: String) {
         rating: `pg-13`
     });
 
-    return result;
+    const gif = new Discord.MessageEmbed()
+                            .setColor('#0099ff')
+                            .setImage(result[0]['images']['original']['url']);
+
+    return gif;
 }
 
 /**
