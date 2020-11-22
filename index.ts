@@ -17,7 +17,10 @@ const { token,
         modRoles,
         drawExcludedRoles } = require('./config.json');
 
-const lib = require('lib')({token: 'tok_dev_Yencymh8ZRb51EgqvQ8C8bCik8w5s1FHzMuPHkzjbVqgPnkb1mZBeLCT31kf3ruR'});
+
+const fetch = require("node-fetch");
+global.Headers = fetch.Headers;
+global.Request = fetch.Request;
 const client = new Discord.Client();
 var time = moment();
 var connection;
@@ -423,15 +426,16 @@ function createEventEmbed(event){
 
 async function getGif(query) {
 
-    // make API request
-    let result = await lib.giphy.search['@0.0.9'].gifs({
-        query: query,
-        rating: `pg-13`
-    });
+    console.log("Retrieving gif from GIPHY...")
+
+    const url = "https://chubb.api.stdlib.com/hawking@dev/getGif/?query=";
+
+    let response = await fetch(url + query);
+    let result = await response.json();
 
     const gif = new Discord.MessageEmbed()
                             .setColor('#0099ff')
-                            .setImage(result[Math.floor(Math.random() * result.length)]['images']['original']['url']);
+                            .setImage(result['images']['original']['url']);
 
     return gif;
 }
