@@ -122,6 +122,8 @@ client.on('message', async message => {
         case 'add': {
 
             if (!isModerator(message)) { return }
+            
+            commandLog(message.member, command, args);
 
             if (args.length == 7) {
 
@@ -159,6 +161,8 @@ client.on('message', async message => {
 
             if (!isModerator(message)) { return }
 
+            commandLog(message.member, command, args);
+
             if (args.length == 1) {
 
                 const delID = args[0];
@@ -178,6 +182,8 @@ client.on('message', async message => {
 
             if (!isModerator(message)) { return }
 
+            commandLog(message.member, command, args);
+
             generateEventsTable(message);
             break;
         } 
@@ -185,6 +191,8 @@ client.on('message', async message => {
             // Hawking's Music control commands.
 
             if (!isModerator(message)) { return }
+
+            commandLog(message.member, command, args);
 
             const arg = args[0];
             switch (arg) {
@@ -206,6 +214,8 @@ client.on('message', async message => {
             // Members with roles in drawExcludedRoles can't win draws :(
 
             if (!isModerator(message)) { return }
+
+            commandLog(message.member, command, args);
 
             if ( args[0] == 'reset' ) {
 
@@ -241,13 +251,17 @@ client.on('message', async message => {
             break;
         }
         case 'gif': {
-            
+
+            commandLog(message.member, command, args);
+
             const query = args.join(" ");
             const gif = await getGif(query);
             message.channel.send(gif);
             break;
         }
         case 'help': {
+
+            commandLog(message.member, command, args);
 
             message.reply('For more info and commands, check out => https://github.com/NickChubb/science-bot/blob/master/README.md');
             break;
@@ -256,6 +270,8 @@ client.on('message', async message => {
             // Test case.
 
             if (!isModerator(message)) { return }
+
+            commandLog(message.member, command, args);
 
             const eventsList = await Events.findAll({ order: [['date', 'DESC']] });
             const event1 = eventsList[1];
@@ -315,6 +331,16 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
         
     }
 });
+
+/**
+ * Logs when a user uses a command.
+ * @param member - Member that Hawking is responding to
+ * @param command - Command that was used
+ * @param args - Arguements passed []
+ */
+function commandLog(member, command, args){
+    console.log(`👉 ${member.displayName} has used the command '${prefix}${command}' with the arguments: ${args}` )
+}
 
 /**
  * Creates and sends the embeds for each event in the database to the events channel.
