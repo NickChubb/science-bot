@@ -272,11 +272,15 @@ client.on('message', async message => {
             if (!isModerator(message)) { return }
 
             commandLog(message.member, command, args);
-
+            
+            /*
             const eventsList = await Events.findAll({ order: [['date', 'DESC']] });
-            const event1 = eventsList[1];
+            const event1 = eventsList[0];
 
             sendAnnouncement(event1);
+            */
+            updateCalendar();
+            
             break;
         }
         default: {
