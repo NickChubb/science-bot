@@ -417,7 +417,8 @@ function createEventEmbed(event){
     const strDate = eventDate.format('dddd MMM Do, YYYY');
     const now = moment();
     var embedColour = '#0099ff';
-    var thumbnailUrl = 'https://nchubb.com/sus/'; // Hosting DSU logos on my server
+    // var thumbnailUrl = 'https://nchubb.com/sus/'; // Hosting DSU logos on my server
+
 
     // Change colour to green if event is today
     if (eventDate.isSame(now, 'date')){
@@ -425,14 +426,16 @@ function createEventEmbed(event){
     }
 
     // Generates a different thumbnail link depending on which DSU is organizing the event
-    if (event.title.includes("Physics Student Association") || event.title.includes("PSA")) {
-        thumbnailUrl += 'psa.png';
-    } else if (event.title.includes("Chemistry Student Society") || event.title.includes("CSS")) {
-        thumbnailUrl += 'css.png';
+    if (event.title.includes("Physics") || event.title.includes("PSA")) {
+        imageFilename = 'psa.jpeg'; // Change to png when new logo
+    } else if (event.title.includes("Chemistry") || event.title.includes("CSS")) {
+        imageFilename = 'css.jpeg'; // Change to png when new logo
+    } else if (event.title.includes("Molecular Biology and Biochemistry") || event.title.includes("MBBSU")) {
+        imageFilename = 'mbbsu.png';
     } else if (event.title.includes("Simon Fraser Student Society") || event.title.includes("SFSS")) {
-        thumbnailUrl += 'sfss.png';
+        imageFilename = 'sfss.png';
     } else {
-        thumbnailUrl += 'sus.png';
+        imageFilename = 'sus.png';
     }
 
     const eventEmbed = new Discord.MessageEmbed()
@@ -440,8 +443,8 @@ function createEventEmbed(event){
 	.setTitle(event.title)
 	//.setURL(event.URL)
     .setDescription(event.description)
-    .attachFiles(['src/sus.png'])
-	.setThumbnail('attachment://sus.png')
+    .attachFiles(['src/' + imageFilename])
+	.setThumbnail('attachment://' + imageFilename)
 	.addFields(
         { name: 'Location', value: event.location },
         { name: 'Date', value: strDate + '\u200b \u200b \u200b \u200b \u200b \u200b', inline: true},
