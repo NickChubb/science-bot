@@ -5,6 +5,7 @@ const hawking = express();
 const port = process.env.PORT || "8000";
 
 hawking.use(express.static(path.join(__dirname, "public")));
+hawking.use("/api", require("./api.ts"));
 
 hawking.get("/", (req, res) => {
   res.sendFile(__dirname + "/public/index.html");

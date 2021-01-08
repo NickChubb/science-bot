@@ -6,6 +6,8 @@ const Discord = require('discord.js');
 const Sequelize = require('sequelize');
 const moment = require('moment');
 const ytdl = require("ytdl-core");
+const express = require('express');
+const path = require("path");
 const { token, 
         prefix,
         botID,
@@ -17,6 +19,9 @@ const { token,
         modRoles,
         drawExcludedRoles } = require('./config.json');
 
+const app = express();
+// const port = process.env.PORT || "3000";
+const port = "3001";
 
 const fetch = require("node-fetch");
 global.Headers = fetch.Headers;
@@ -618,6 +623,32 @@ async function eventUpdateLoop(){
 
 // Executes every 30 minutes
 setInterval(eventUpdateLoop, 1800000);
+
+/**
+ * Express Routing
+ */
+
+app.use(express.static(path.join(__dirname, "public")));
+app.use("/api", require("./api.ts"));
+
+app.get("/", (req, res) => {
+  res.sendFile(__dirname + "/public/index.html");
+})
+
+app.get("/event", (req, res) => {
+  res.sendFile(__dirname + "/public/event.html");
+})
+
+app.get("/addEvent", (req, res) => {
+    
+})
+
+/**
+ * Server Activation
+ */
+app.listen(port, () => {
+  console.log(`Listening to requests on http://localhost:${port}`);
+});
 
 // Log the client in to the server
 client.login(token);
