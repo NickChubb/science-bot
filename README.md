@@ -8,7 +8,7 @@ A multi-purpose Discord bot.
 
     Manages an event calendar channel, which users can add/remove events from with a text command.  The bot automatically removes past events and sends announcements to an announcement channel right before an event is happening.
     
-    <img src="https://i.imgur.com/wPebzoX.png" alt="Event Calendar" width="500"/>
+    <img src="https://i.imgur.com/sKA15fC.png" alt="Event Calendar" width="500"/>
 
 2) **24/7 Music Player**
 
