@@ -5,8 +5,6 @@ const Docker = require('dockerode');
 const docker = new Docker({ socketPath: '/var/run/docker.sock' });
 
 const containerName = 'hawking';
-const containerId = "681b2f17575209b8bc5cb7a88e6cc51ad0143f2c14878b6c4141ccb440d1b510";
-
 
 router.get('/getContainers', (req,res) => {
     docker.listContainers().then(containers => {return res.json(containers)});

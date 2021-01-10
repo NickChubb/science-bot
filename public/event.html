@@ -10,18 +10,33 @@
 
 <form>
   <div class="form-group">
-    <label for="exampleInputEmail1">Event Title</label>
-    <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
+    <label for="eventTitle">Event Title</label>
+    <input type="text" class="form-control" id="eventTitle" aria-describedby="emailHelp" placeholder="Enter Event Title...">
   </div>
 
   <div class="form-group">
-    <label for="exampleInputPassword1">Event Description</label>
-    <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+    <label for="eventDescription">Event Description</label>
+    <textarea cols="40" rows="5" class="form-control" id="eventDescription" placeholder="Event Description"></textarea>
   </div>
 
   <div class="form-group">
-    <label for="exampleInputPassword1">Event Time</label>
-    <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+    <label for="eventLocation">Event Location</label>
+    <input type="text" class="form-control" id="eventLocation" placeholder="Event Location (eg. 'AQ 9001', or '#meeting-room-1'">
+  </div>
+
+  <div class="form-group">
+    <label for="eventStartTime">Start Time</label>
+    <input type="time" class="form-control" id="eventStartTime" placeholder="">
+  </div>
+
+  <div class="form-group">
+    <label for="eventEndTime">End Time</label>
+    <input type="time" class="form-control" id="eventEndTime" placeholder="">
+  </div>
+
+  <div class="form-group">
+    <label for="eventDate">Event Date</label>
+    <input type="date" class="form-control" id="eventDate" placeholder="">
   </div>
 
   <div class="form-group">

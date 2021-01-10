@@ -140,18 +140,7 @@ client.on('message', async message => {
                 const eventEndTime = args[5];
                 const eventURL = args[6];
 
-                const newEvent = await Events.create({
-                    title: eventTitle,
-                    description: eventDescription,
-                    location: eventLocation,
-                    date: eventDate,
-                    startTime: eventStartTime,
-                    endTime: eventEndTime,
-                    URL: eventURL,
-                });
-            
-                message.reply('```diff\n+ Event Added to Calendar:\n+ ' + args.join('\n+ ') + ' with id: ' + newEvent.id + '\n```');
-                updateCalendar();
+                addEvent(eventTitle, eventDescription, eventLocation, eventDate, eventStartTime, eventEndTime, eventURL)
 
             } else {
                 message.reply('```diff\n- ERROR: Incorrect number of arguements.'
@@ -372,6 +361,25 @@ async function createCalendar(channel){
 
         channel.send(eventEmbed);
     });
+}
+
+/**
+ * Create a new event in the event database and refresh calendar.
+ */
+function addEvent(eventTitle, eventDescription, eventLocation, eventDate, eventStartTime, eventEndTime, eventURL) {
+
+    const newEvent = await Events.create({
+        title: eventTitle,
+        description: eventDescription,
+        location: eventLocation,
+        date: eventDate,
+        startTime: eventStartTime,
+        endTime: eventEndTime,
+        URL: eventURL,
+    });
+
+    message.reply('```diff\n+ Event Added to Calendar:\n+ ' + args.join('\n+ ') + ' with id: ' + newEvent.id + '\n```');
+    updateCalendar();
 }
 
 /**
@@ -627,21 +635,35 @@ setInterval(eventUpdateLoop, 1800000);
 /**
  * Express Routing
  */
+app.use(cors());
+
+// Configuring body parser middleware
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/api", require("./api.ts"));
 
 app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/public/index.html");
+    res.sendFile(__dirname + "/public/index.html");
 })
 
 app.get("/event", (req, res) => {
-  res.sendFile(__dirname + "/public/event.html");
+    res.sendFile(__dirname + "/public/event.html");
 })
 
-app.get("/addEvent", (req, res) => {
-    
+app.get("/bot/addEvent", (req, res) => {
+
+
+
+    addEvent();
+})  
+
+app.get("/bot/restart", (req, res) => {
+    client.destroy(token);
+    client.login(token);
 })
+
 
 /**
  * Server Activation
