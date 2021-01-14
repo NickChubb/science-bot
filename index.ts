@@ -7,6 +7,8 @@ const Sequelize = require('sequelize');
 const moment = require('moment');
 const ytdl = require("ytdl-core");
 const express = require('express');
+const bodyParser = require('body-parser');
+const cors = require('cors');
 const path = require("path");
 const { token, 
         prefix,
@@ -130,7 +132,7 @@ client.on('message', async message => {
             
             commandLog(message.member, command, args);
 
-            if (args.length == 7) {
+            if (args.length == 6) {
 
                 const eventTitle = args[0].split('"').join('');
                 const eventDescription = args[1].split('"').join('');
@@ -138,13 +140,17 @@ client.on('message', async message => {
                 const eventDate = args[3];
                 const eventStartTime = args[4];
                 const eventEndTime = args[5];
-                const eventURL = args[6];
 
-                addEvent(eventTitle, eventDescription, eventLocation, eventDate, eventStartTime, eventEndTime, eventURL)
+                const newEvent = addEvent(eventTitle, eventDescription, eventLocation, eventDate, eventStartTime, eventEndTime, "sfusus.com")
+
+                newEvent.then((event) => {
+                        message.reply('```diff\n+ Event Added to Calendar:\n+ ' + args.join('\n+ ') + ' with id: ' + event.id + '\n```');                    
+                    })
+
 
             } else {
                 message.reply('```diff\n- ERROR: Incorrect number of arguements.'
-                                + '\n\n- +add "<title>" "<description>" "<location>" <date (YYYY-MM-DD)> <start_time> <end_time> <URL>' 
+                                + '\n\n- +add "<title>" "<description>" "<location>" <date (YYYY-MM-DD)> <start_time> <end_time>' 
                                 + '\n\n- Remember to put quotation marks around the title, description and location.'
                                 + '\n\n- If location is a text channel in the discord, #channel-name (WITHOUT QUOTES) will link to it.```'); //Red text
             }
@@ -366,7 +372,7 @@ async function createCalendar(channel){
 /**
  * Create a new event in the event database and refresh calendar.
  */
-function addEvent(eventTitle, eventDescription, eventLocation, eventDate, eventStartTime, eventEndTime, eventURL) {
+async function addEvent(eventTitle, eventDescription, eventLocation, eventDate, eventStartTime, eventEndTime, eventURL) {
 
     const newEvent = await Events.create({
         title: eventTitle,
@@ -378,8 +384,8 @@ function addEvent(eventTitle, eventDescription, eventLocation, eventDate, eventS
         URL: eventURL,
     });
 
-    message.reply('```diff\n+ Event Added to Calendar:\n+ ' + args.join('\n+ ') + ' with id: ' + newEvent.id + '\n```');
     updateCalendar();
+    return newEvent;
 }
 
 /**
