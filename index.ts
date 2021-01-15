@@ -391,7 +391,14 @@ function updateCalendar() {
     const eventsChannel = client.channels.cache.get(eventsChannelID);
 
     // Delete all the messages in the channel
-    eventsChannel.messages.cache.each(message => message.delete());
+    let messages;
+    do {
+        messages = eventsChannel.messages.fetch({ limit: 100 }).then(
+            messagelist => messagelist.forEach(
+                message => message.delete()
+        ));
+    } while (messages.size > 0)
+    
 
     // Generate calendar image
     eventsChannel.send("", {files: ["https://nickchubb.ca/sus/sus_event_calendar.png"]});
