@@ -68,6 +68,30 @@ drawExcludedRoles are roles that are excluded from winning draws.
 
     Responds with a randomized gif based on the search query.  Queries can be multiple words long and should not be wrapped in quotation marks.
     
+## Deployment
+
+### Docker
+
+Currently, the preferred method of deployment is with Docker.  The included script `./docker.sh` will remove the current container (if it exists) and run a new one.  
+
+### config.json
+
+Hawking requires a few channels for all the features to work properly, and these must be configured in a config.json file.  There is a provided config.json.sample to refer to.  
+
+- The Events Calendar should be a channel that only the bot has permissions to post in, since it will delete every message in the channel which it points to when it has to refresh the calendar.  
+
+- The announcements channel can be any channel where you would like announcements to be made.  
+
+- The mod commands channel is a channel which is not used at this time, but I am leaving it for the time being if I need it again. 
+
+- The music channel is any voice channel in which Hawking will join and play music on repeat.  
+
+- isMusicOn is a boolean value which indicates whether Hawking should join a voice channel and play music.
+
+- modRoles are a list of roles which can use moderator commands, such as adding events, running raffles, or anything to do with music.
+
+- drawExcludedRoles are a list of roles which will not be selected to win in a raffle.  
+    
 ## About
 
 Created for the SFU Science Undergraduate Society Discord server by Nick Chubb.
