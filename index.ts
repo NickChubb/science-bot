@@ -141,12 +141,16 @@ client.on('message', async message => {
                 const eventStartTime = args[4];
                 const eventEndTime = args[5];
 
-                const newEvent = addEvent(eventTitle, eventDescription, eventLocation, eventDate, eventStartTime, eventEndTime, "sfusus.com")
+                const now = moment();
+                if (moment(eventDate).isBefore(now, 'date')) { 
+                    message.reply('```diff\n- ERROR: I don\'t think your date is right 🤔.  Make sure your date is after now.```'); //Red text
+                } else {
+                    const newEvent = addEvent(eventTitle, eventDescription, eventLocation, eventDate, eventStartTime, eventEndTime, "sfusus.com")
 
-                newEvent.then((event) => {
-                        message.reply('```diff\n+ Event Added to Calendar:\n+ ' + args.join('\n+ ') + ' with id: ' + event.id + '\n```');                    
-                    })
-
+                    newEvent.then((event) => {
+                            message.reply('```diff\n+ Event Added to Calendar:\n+ ' + args.join('\n+ ') + ' with id: ' + event.id + '\n```');                    
+                        })
+                }
 
             } else {
                 message.reply('```diff\n- ERROR: Incorrect number of arguements.'
@@ -266,21 +270,11 @@ client.on('message', async message => {
             message.reply('For more info and commands, check out => https://github.com/NickChubb/science-bot/blob/master/README.md');
             break;
         }
-        case 'test': {
-            // Test case.
-
+        case 'reloadcalendar': {
             if (!isModerator(message)) { return }
-
             commandLog(message.member, command, args);
             
-            /*
-            const eventsList = await Events.findAll({ order: [['date', 'DESC']] });
-            const event1 = eventsList[0];
-
-            sendAnnouncement(event1);
-            */
             updateCalendar();
-            
             break;
         }
         default: {
@@ -397,7 +391,8 @@ function updateCalendar() {
     const eventsChannel = client.channels.cache.get(eventsChannelID);
 
     // Delete all the messages in the channel
-    eventsChannel.bulkDelete(100);
+    eventsChannel.messages.cache.each(message => message.delete());
+
     // Generate calendar image
     eventsChannel.send("", {files: ["https://nickchubb.ca/sus/sus_event_calendar.png"]});
     // Create new calendar of messages
