@@ -452,6 +452,18 @@ function createEventEmbed(event){
         imageFilename = 'sus.png';
     }
 
+    let eventLocation = event.location;
+    if (eventLocation.startsWith("#")) {
+
+        const location = event.location.substring(1);
+        eventLocation = client.channels.cache.find(channel => channel.name.endsWith(location));
+
+        if (eventLocation === undefined) {
+            eventLocation = event.location;
+        }
+
+    }
+
     const eventEmbed = new Discord.MessageEmbed()
 	.setColor(embedColour)
 	.setTitle(event.title)
@@ -460,7 +472,7 @@ function createEventEmbed(event){
     .attachFiles(['src/' + imageFilename])
 	.setThumbnail('attachment://' + imageFilename)
 	.addFields(
-        { name: 'Location', value: event.location },
+        { name: 'Location', value: eventLocation },
         { name: 'Date', value: strDate + '\u200b \u200b \u200b \u200b \u200b \u200b', inline: true},
         //{ name: '\u200B', value: '\u200B', inline: true},
 		{ name: 'Start Time \u200b \u200b \u200b \u200b \u200b \u200b', value: event.startTime , inline: true },
@@ -496,17 +508,6 @@ function sendAnnouncement(event){
 
     const announcementsChannel = client.channels.cache.get(announcementsChannelID);
     var eventLocation = event.location;
-
-    if (event.location.startsWith("#")) {
-
-        const location = event.location.substring(1);
-        eventLocation = client.channels.cache.find(channel => channel.name.endsWith(location));
-
-        if (eventLocation === undefined) {
-            eventLocation = event.location;
-        }
-
-    }
 
     var msg = `.\n👉   The event **${event.title}** is happening in less than an hour!   \n\n`
                + `👉   Head on over to **${eventLocation}** from **${event.startTime}** to **${event.endTime}** get involved!!\n\n`
@@ -653,11 +654,18 @@ app.get("/event", (req, res) => {
     res.sendFile(__dirname + "/public/event.html");
 })
 
-app.get("/bot/addEvent", (req, res) => {
+app.post("/bot/addEvent", (req, res) => {
 
+    const eventTitle = req.body.eventTitle;
+    const eventDescription = req.body.eventDescription;
+    const eventLocation = req.body.eventLocation;
+    const eventStartTime = req.body.eventStartTime;
+    const eventEndTime = req.body.eventEndTime;
+    const eventDate = req.body.eventDate;  
 
+    console.log(`Event Received: \n\t"${eventTitle}"\n\t"${eventDescription}"\n\t"${eventLocation}"\n\t"${eventStartTime}"\n\t"${eventEndTime}"\n\t"${eventDate}"`);
 
-    addEvent();
+    addEvent(eventTitle, eventDescription, eventLocation, eventDate, eventStartTime, eventEndTime, "");
 })  
 
 app.get("/bot/restart", (req, res) => {
