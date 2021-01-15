@@ -72,7 +72,9 @@ drawExcludedRoles are roles that are excluded from winning draws.
 
 ### Docker
 
-Currently, the preferred method of deployment is with Docker.  The included script `./docker.sh` will remove the current container (if it exists) and run a new one.  
+Currently, the preferred method of deployment is with Docker.  The included script `./docker.sh` will remove the current container (if it exists) and run a new one.
+
+The UI interface is available at http://localhost:3001 once the container is running.  It is suggested to port forward this using either Nginx or Express if you already have another Node server on the same machine.
 
 ### config.json
 
