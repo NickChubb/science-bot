@@ -673,6 +673,8 @@ app.post("/bot/addEvent", (req, res) => {
     console.log(`Event Received: \n\t"${eventTitle}"\n\t"${eventDescription}"\n\t"${eventLocation}"\n\t"${eventStartTime}"\n\t"${eventEndTime}"\n\t"${eventDate}"`);
 
     addEvent(eventTitle, eventDescription, eventLocation, eventDate, eventStartTime, eventEndTime, "");
+
+    res.sendStatus(200)
 })  
 
 app.get("/bot/restart", (req, res) => {
