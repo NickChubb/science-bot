@@ -68,6 +68,10 @@ drawExcludedRoles are roles that are excluded from winning draws.
 
     Responds with a randomized gif based on the search query.  Queries can be multiple words long and should not be wrapped in quotation marks.
     
+- **+help**
+
+    Responds with a link to the GUI.    
+
 ## Deployment
 
 ### Docker
