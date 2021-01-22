@@ -6,41 +6,44 @@
   <link rel="icon" href="src/hawking.png">
   <title>Hawking - Add Event</title>
 </head>
-<body>
+<body class="container justify-content-center">
+  <div class="col">
+    <div class="col text-center">
+      <h1 style="padding: 20px;"><a href=".">Hawking</a> - The SFU Science Discord Bot</h1>
+    </div>
+    <form method="POST" action="/hawking/bot/addEvent">
+      <div class="form-group">
+        <label for="eventTitle">Event Title</label>
+        <input type="text" class="form-control" name="eventTitle" aria-describedby="emailHelp" placeholder="Enter Event Title...">
+      </div>
 
-<form method="POST" action="/hawking/bot/addEvent">
-  <div class="form-group">
-    <label for="eventTitle">Event Title</label>
-    <input type="text" class="form-control" name="eventTitle" aria-describedby="emailHelp" placeholder="Enter Event Title...">
+      <div class="form-group">
+        <label for="eventDescription">Event Description</label>
+        <textarea cols="40" rows="5" class="form-control" name="eventDescription" placeholder="Come out to our awesome event where we will.... (Don't forget to include lots of emojis 😎)"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="eventLocation">Event Location</label>
+        <input type="text" class="form-control" name="eventLocation" placeholder="Event Location (eg. AQ 9001 or #meeting-room-1)">
+      </div>
+
+      <div class="form-group">
+        <label for="eventStartTime">Start Time</label>
+        <input type="time" class="form-control" name="eventStartTime" placeholder="">
+      </div>
+
+      <div class="form-group">
+        <label for="eventEndTime">End Time</label>
+        <input type="time" class="form-control" name="eventEndTime" placeholder="">
+      </div>
+
+      <div class="form-group">
+        <label for="eventDate">Event Date</label>
+        <input type="date" class="form-control" name="eventDate" placeholder="">
+      </div>
+
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
   </div>
-
-  <div class="form-group">
-    <label for="eventDescription">Event Description</label>
-    <textarea cols="40" rows="5" class="form-control" name="eventDescription" placeholder="Come out to our awesome event where we will.... (Don't forget to include lots of emojis 😎)"></textarea>
-  </div>
-
-  <div class="form-group">
-    <label for="eventLocation">Event Location</label>
-    <input type="text" class="form-control" name="eventLocation" placeholder="Event Location (eg. AQ 9001 or #meeting-room-1)">
-  </div>
-
-  <div class="form-group">
-    <label for="eventStartTime">Start Time</label>
-    <input type="time" class="form-control" name="eventStartTime" placeholder="">
-  </div>
-
-  <div class="form-group">
-    <label for="eventEndTime">End Time</label>
-    <input type="time" class="form-control" name="eventEndTime" placeholder="">
-  </div>
-
-  <div class="form-group">
-    <label for="eventDate">Event Date</label>
-    <input type="date" class="form-control" name="eventDate" placeholder="">
-  </div>
-
-  <button type="submit" class="btn btn-primary">Submit</button>
-</form>
-
 </body>
 </html>

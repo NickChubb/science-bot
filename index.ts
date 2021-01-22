@@ -267,7 +267,7 @@ client.on('message', async message => {
 
             commandLog(message.member, command, args);
 
-            message.reply('For more info and commands, check out => https://github.com/NickChubb/science-bot/blob/master/README.md');
+            message.reply('For more info and commands, check out => https://nickchubb.ca/hawking/');
             break;
         }
         case 'reloadcalendar': {
