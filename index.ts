@@ -453,9 +453,9 @@ function createEventEmbed(event){
         imageFilename = 'css.jpeg'; // Change to png when new logo
     } else if (event.title.includes("Molecular Biology and Biochemistry") || event.title.includes("MBBSU")) {
         imageFilename = 'mbbsu.png';
-    } else if (event.title.includes("Earth Science Student Union") || event.title.includes("ESSU")) {
+    } else if (event.title.includes("Earth Science") || event.title.includes("ESSU")) {
         imageFilename = 'essu.png';
-    } else if (event.title.includes("Math Student Union") || event.title.includes("MSU")) {
+    } else if (event.title.includes("Math") || event.title.includes("MSU")) {
         imageFilename = 'msu.png';
     } else if (event.title.includes("Simon Fraser Student Society") || event.title.includes("SFSS")) {
         imageFilename = 'sfss.png';
